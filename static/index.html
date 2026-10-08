@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CineMatch · Recommendation Engine</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <header class="bar">
+      <span class="logo">CINEMATCH</span>
+      <nav>
+        <button class="tab active" data-mode="user">Existing viewer</button>
+        <button class="tab" data-mode="custom">Build your taste</button>
+        <button class="tab" data-mode="metrics">Evaluation</button>
+      </nav>
+    </header>
+
+    <main>
+      <section id="panel-user" class="panel">
+        <label
+          >Viewer
+          <select id="user-select"></select>
+        </label>
+        <button id="user-go" class="primary">Recommend</button>
+        <button id="user-random">Surprise me</button>
+      </section>
+
+      <section id="panel-custom" class="panel" hidden>
+        <input
+          id="search"
+          type="search"
+          placeholder="Search movies you've watched (e.g. matrix)…"
+          autocomplete="off"
+        />
+        <ul id="search-results"></ul>
+        <div id="picked"></div>
+        <button id="custom-go" class="primary">Get recommendations</button>
+        <span class="hint"
+          >Tip: with zero ratings you get the cold-start experience.</span
+        >
+      </section>
+
+      <section id="panel-metrics" class="panel" hidden></section>
+
+      <p id="status" role="status"></p>
+      <section id="profile"></section>
+      <section id="rows"></section>
+    </main>
+
+    <dialog id="modal"></dialog>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

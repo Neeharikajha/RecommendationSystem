@@ -1,0 +1,251 @@
+:root {
+  --bg: #141414;
+  --panel: #1f1f1f;
+  --text: #e5e5e5;
+  --muted: #9a9a9a;
+  --red: #e50914;
+  --green: #46d369;
+}
+* {
+  box-sizing: border-box;
+}
+[hidden] {
+  display: none !important;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    15px/1.4 system-ui,
+    sans-serif;
+}
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 0.9rem 2rem;
+  background: #000;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+.logo {
+  color: var(--red);
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  font-size: 1.4rem;
+}
+.tab {
+  background: none;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.4rem 0.2rem;
+  font-size: 0.95rem;
+}
+.tab.active {
+  color: #fff;
+  border-bottom: 2px solid var(--red);
+}
+main {
+  padding: 1.5rem 2rem 4rem;
+  max-width: 1400px;
+  margin: auto;
+}
+.panel {
+  background: var(--panel);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+}
+select,
+input,
+button {
+  background: #2b2b2b;
+  color: var(--text);
+  border: 1px solid #3a3a3a;
+  border-radius: 4px;
+  padding: 0.5rem 0.8rem;
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:hover {
+  border-color: #777;
+}
+button.primary {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+  font-weight: 600;
+}
+#search {
+  flex: 1 1 320px;
+}
+#search-results {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+#search-results li {
+  padding: 0.4rem 0.6rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+#search-results li:hover {
+  background: #2b2b2b;
+}
+#picked {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+}
+.pill {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  background: #2b2b2b;
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+}
+.pill input {
+  width: 4.2rem;
+  padding: 0.2rem 0.4rem;
+}
+.hint,
+#status {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+#status.error {
+  color: #ff6b6b;
+}
+#profile {
+  margin: 1.2rem 0;
+  display: grid;
+  gap: 0.6rem;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+.chip {
+  background: #2b2b2b;
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.weights {
+  display: flex;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden;
+  max-width: 420px;
+}
+.weights span {
+  display: block;
+}
+.w-collaborative {
+  background: #e50914;
+}
+.w-content {
+  background: #3b82f6;
+}
+.w-popularity {
+  background: #9a9a9a;
+}
+.row h2 {
+  font-size: 1.15rem;
+  margin: 1.6rem 0 0.6rem;
+}
+.strip {
+  display: flex;
+  gap: 0.7rem;
+  overflow-x: auto;
+  padding-bottom: 0.6rem;
+  scroll-snap-type: x proximity;
+}
+.card {
+  flex: 0 0 170px;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: transform 0.15s;
+}
+.card:hover {
+  transform: scale(1.05);
+}
+.poster {
+  height: 240px;
+  border-radius: 6px;
+  padding: 0.7rem;
+  display: flex;
+  align-items: flex-end;
+  font-weight: 700;
+  text-shadow: 0 1px 4px #000;
+}
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  margin-top: 0.35rem;
+}
+.match {
+  color: var(--green);
+  font-weight: 700;
+}
+.muted {
+  color: var(--muted);
+}
+dialog {
+  background: var(--panel);
+  color: var(--text);
+  border: 0;
+  border-radius: 10px;
+  width: min(620px, 92vw);
+  padding: 1.4rem;
+}
+dialog::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+}
+.bar-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 40px;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: 0.85rem;
+  margin: 0.25rem 0;
+}
+.track {
+  background: #333;
+  height: 8px;
+  border-radius: 4px;
+}
+.fill {
+  background: var(--red);
+  height: 100%;
+  border-radius: 4px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  padding: 0.45rem 0.7rem;
+  text-align: right;
+  border-bottom: 1px solid #333;
+}
+th:first-child,
+td:first-child {
+  text-align: left;
+}

@@ -1,0 +1,57 @@
+{
+  "k": 10,
+  "users_evaluated": 591,
+  "split": "temporal per-user holdout",
+  "results": {
+    "popularity": {
+      "latency_ms": 0.0735,
+      "precision": 0.0426,
+      "recall": 0.0332,
+      "map": 0.025,
+      "ndcg": 0.0552,
+      "diversity": 0.7631,
+      "novelty": 2.3295,
+      "coverage": 0.0174
+    },
+    "content": {
+      "latency_ms": 0.3944,
+      "precision": 0.0083,
+      "recall": 0.005,
+      "map": 0.0032,
+      "ndcg": 0.0093,
+      "diversity": 0.1265,
+      "novelty": 5.5056,
+      "coverage": 0.5531
+    },
+    "collaborative": {
+      "latency_ms": 0.3444,
+      "precision": 0.0653,
+      "recall": 0.0645,
+      "map": 0.0404,
+      "ndcg": 0.085,
+      "diversity": 0.8004,
+      "novelty": 2.4561,
+      "coverage": 0.1932
+    },
+    "hybrid": {
+      "latency_ms": 3.0534,
+      "precision": 0.0435,
+      "recall": 0.0377,
+      "map": 0.0251,
+      "ndcg": 0.0567,
+      "diversity": 0.5485,
+      "novelty": 3.1902,
+      "coverage": 0.1767
+    },
+    "hybrid + MMR": {
+      "latency_ms": 3.7437,
+      "precision": 0.0469,
+      "recall": 0.0415,
+      "map": 0.0263,
+      "ndcg": 0.0606,
+      "diversity": 0.8189,
+      "novelty": 3.1231,
+      "coverage": 0.1645
+    }
+  }
+}
