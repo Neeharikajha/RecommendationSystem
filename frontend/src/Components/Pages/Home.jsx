@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setProfile } from "../../Store/profile";
 import requests from "../../Requests/request";
-import Row from "../Row/Row";
 import CineRow from "../Row/CineRow";
 import PlayCard from "../PlayCard/PlayCard";
 import ProfileHeader from "../Layouts/ProfileHeader";
@@ -141,24 +140,7 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
         </div>
       )}
 
-      {/* Dividing Accent Line */}
-      <div className="my-8 mx-6 md:mx-12 border-t border-neutral-800/80" />
 
-      {/* TMDB Global Streaming Rows */}
-      <div className="space-y-2">
-        <div className="px-6 md:px-12">
-          <span className="rounded bg-neutral-800 text-[11px] font-bold uppercase text-gray-400 px-2 py-0.5 tracking-wider">
-            Streaming Global Catalog (TMDB)
-          </span>
-        </div>
-        <Row title="NETFLIX ORIGINALS" fetchUrl={requests.fetchNetflixOriginals} />
-        <Row title="Trending Now" fetchUrl={requests.fetchTrending} />
-        <Row title="Top Rated Classics" fetchUrl={requests.fetchTopRated} />
-        <Row title="Action Thrillers" fetchUrl={requests.fetchActionMovies} />
-        <Row title="Comedy Hits" fetchUrl={requests.fetchComedyMovies} />
-        <Row title="Romance & Drama" fetchUrl={requests.fetchRomanticMovies} />
-        <Row title="Documentaries" fetchUrl={requests.fetchDocumentaries} />
-      </div>
 
       {/* Modal with Why This explanation, Signals & More Like This */}
       {activeModalRec && (
