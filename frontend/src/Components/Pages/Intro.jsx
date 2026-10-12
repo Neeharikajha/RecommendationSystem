@@ -1,84 +1,116 @@
-import React, { useState } from "react";
-import User1 from "../../assets/User1.png";
-import User2 from "../../assets/User2.png";
-import User3 from "../../assets/User3.jfif";
-import User4 from "../../assets/User4.jpg";
-import User5 from "../../assets/User5.png";
-import { Link } from "react-router-dom";
-import { setProfile } from "../../Store/profile";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import Netflix from "../../assets/NetFlix2.png";
-import NetflixAnimation from "../../assets/NetFlix Animation.gif";
+import { setProfile } from "../../Store/profile";
+import { getMeta } from "../../Requests/backendApi";
+
+const defaultAvatars = [
+  "https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png",
+  "https://mir-s3-cdn-cf.behance.net/project_modules/disp/bb3a8833858140.56ba544a374b7.png",
+  "https://mir-s3-cdn-cf.behance.net/project_modules/disp/1b164333858140.56ba544a32e81.png",
+  "https://mir-s3-cdn-cf.behance.net/project_modules/disp/bf642933858140.56ba544a3713b.png",
+];
+
+const NETFLIX_LOGO = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
+const NETFLIX_SPLASH_GIF = "https://cdn.dribbble.com/users/992274/screenshots/10665249/media/ceba06c28f6e80b2a419266f8beeeef1.gif";
 
 const Intro = () => {
-  const [imageArray, setImageArray] = useState([User1, User2]);
-  const [imageContainer, setImageContainer] = useState([User3, User4, User5]);
-  const [count, setCount] = useState(0);
-  const [selected, setSelected] = useState(false);
-  const [NetflixPromo, setNetflixPromo] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
+  const [activeUsers, setActiveUsers] = useState([1, 2, 3, 4]);
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const SetUserProfile = (payload) => {
-    dispatch(setProfile(payload));
-  };
-
-  useState(() => {
-    setTimeout(() => {
-      setNetflixPromo(false);
-    }, 1650);
+  // 1. Splash Screen Timer
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 1500);
+    return () => clearTimeout(timer);
   }, []);
 
-  return NetflixPromo ? (
-    <div className="grid h-screen place-items-center ">
-      <img src={NetflixAnimation} alt="netflix image" />
+  // Fetch real users from backend metadata
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const meta = await getMeta();
+        if (meta?.user_ids?.length) {
+          // Take first 4 distinct users from the dataset
+          setActiveUsers(meta.user_ids.slice(0, 4));
+        }
+      } catch (err) {
+        console.warn("Using fallback user profiles", err);
+      }
+    }
+    fetchUsers();
+  }, []);
+
+  const handleSelectProfile = (userId) => {
+    dispatch(setProfile(userId));
+    navigate("/home");
+  };
+
+  return showSplash ? (
+    /* Screen 1: N Animated Splash Screen */
+    <div className="grid h-screen place-items-center bg-black">
+      <img
+        className="w-72 md:w-96 object-contain"
+        src={NETFLIX_SPLASH_GIF}
+        alt="Netflix Animation"
+      />
     </div>
   ) : (
-    <div className="grid px-10">
-      <img className="mx-auto w-32 md:w-48" src={Netflix} alt="" />
-      <p className="mx-auto mb-3 mt-10 text-lg text-white md:mb-8 md:mt-20 md:text-5xl md:font-semibold">
-        {" "}
+    /* Screen 2: Who's Watching Profile Picker */
+    <div className="flex min-h-screen flex-col items-center justify-center bg-[#141414] px-6 text-center">
+      <div className="flex items-center gap-2 mb-8">
+        <img className="w-32 md:w-44" src={NETFLIX_LOGO} alt="Netflix" />
+        <span className="rounded bg-red-600/20 border border-red-500/40 text-[10px] uppercase font-black text-red-500 px-2 py-0.5 tracking-wider">
+          CineMatch AI
+        </span>
+      </div>
+
+      <h1 className="mb-2 text-3xl font-medium text-white md:text-5xl">
         Who's Watching?
+      </h1>
+      <p className="mb-10 text-xs md:text-sm text-gray-400 max-w-md">
+        Select a benchmark viewer to load their personalized SVD + Content + Popularity recommendations.
       </p>
-      <ul className="md:grid-row-1 ml-7 grid h-fit grid-cols-2 gap-3    md:mx-auto  md:ml-48 md:w-fit md:grid-flow-col  md:gap-6">
-        {imageArray.map((i,j) => {
-          return (
-            <li
-              key={i.substring(12, 17)}
-              className="text-xs md:flex md:w-fit md:flex-col"
-            >
-              <Link to="/new">
-                {" "}
-                <img
-                  onClick={(e) => {
-                    {
-                      selected ? " " : (e.target.style.borderWidth = "3px");
-                    }
-                    setSelected(true);
-                    SetUserProfile(`User${j+1}`);
-                  }}
-                  className="w-24 rounded-sm md:w-32 md:hover:border-4"
-                  src={i}
-                  alt="user image"
-                />{" "}
-              </Link>
-            </li>
-          );
-        })}
-      </ul>
-      <span className="absolute bottom-24 ml-9 mt-5 flex w-20 flex-col font-extralight text-white md:right-40 md:top-64  md:w-28">
-        <button
-          className="h-20 rounded-md border bg-[#101010f9] px-3 py-1  text-3xl font-bold md:h-28   "
-          onClick={() => {
-            count > 2
-              ? ""
-              : (setImageArray([...imageArray, imageContainer[count]]),
-                setCount(count + 1));
-          }}
+
+      <div className="flex flex-wrap items-center justify-center gap-6 md:gap-8">
+        {activeUsers.map((userId, index) => (
+          <div
+            key={userId}
+            onClick={() => handleSelectProfile(userId)}
+            className="group flex flex-col items-center cursor-pointer"
+          >
+            <div className="w-24 h-24 md:w-36 md:h-36 overflow-hidden rounded-md border-2 border-transparent transition-all duration-200 group-hover:border-white group-hover:scale-105 shadow-xl">
+              <img
+                src={defaultAvatars[index % defaultAvatars.length]}
+                alt={`User ${userId}`}
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <p className="mt-3 text-sm font-semibold text-gray-400 group-hover:text-white transition">
+              User #{userId}
+            </p>
+            <span className="text-[10px] text-gray-500">Benchmark Profile</span>
+          </div>
+        ))}
+
+        {/* Cold Start / Custom Viewer Slot */}
+        <div
+          onClick={() => handleSelectProfile("custom")}
+          className="group flex flex-col items-center cursor-pointer"
         >
-          +
-        </button>
-      </span>
+          <div className="flex w-24 h-24 md:w-36 md:h-36 items-center justify-center rounded-md border-2 border-dashed border-gray-600 bg-[#1c1c1c] text-3xl font-light text-gray-400 transition-all duration-200 group-hover:border-red-500 group-hover:text-white group-hover:scale-105">
+            ✨
+          </div>
+          <p className="mt-3 text-sm font-semibold text-gray-400 group-hover:text-white transition">
+            Build My Own
+          </p>
+          <span className="text-[10px] text-gray-500">Cold-start / Custom</span>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,33 +1,33 @@
-import { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
-import { Link } from "react-router-dom";
 
 const Card = ({ image_src, image_alt, id }) => {
   const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 400);
-  });
 
-  return loading ? (
-    <div className="relative mx-[.22rem] h-[9.7rem] w-[6.6rem] animate-pulse space-y-5  overflow-hidden rounded-md bg-gray-800 bg-gradient-to-r  from-transparent via-gray-600 to-transparent pb-2 shadow-xl  shadow-black/5 before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_1s_infinite] before:border-t before:border-gray-900 before:bg-gradient-to-r before:from-transparent before:via-gray-900 before:to-transparent md:w-[16rem]">
-      <SkeletonTheme baseColor="#202020" highlightColor="#444">
-        <p>
-          <Skeleton duration={2} />
-        </p>
-      </SkeletonTheme>
-    </div>
-  ) : (
-    <Link to={`/movie/${id}`}>
-      <div className="mx-[.22rem]  w-[6.6rem] md:w-[16rem]">
-        <img
-          className='"> h-[9.7rem] rounded-md  md:rounded-sm'
-          src={image_src}
-          alt={image_alt}
-        />
+  useEffect(() => {
+    const timer = setTimeout(() => setLoading(false), 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="h-28 w-48 md:h-36 md:w-64 flex-shrink-0 overflow-hidden rounded bg-gray-800 animate-pulse">
+        <SkeletonTheme baseColor="#202020" highlightColor="#444">
+          <Skeleton height="100%" />
+        </SkeletonTheme>
       </div>
-    </Link>
+    );
+  }
+
+  return (
+    <div className="group relative h-28 w-48 md:h-36 md:w-64 flex-shrink-0 cursor-pointer overflow-hidden rounded transition-all duration-300 hover:scale-105 hover:z-20">
+      <img
+        src={image_src}
+        alt={image_alt || "Movie"}
+        className="h-full w-full object-cover rounded"
+        loading="lazy"
+      />
+    </div>
   );
 };
 

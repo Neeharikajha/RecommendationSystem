@@ -1,71 +1,78 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import Netflix from "../../assets/Netflix.webp";
-import NetflixLOGO from "../../assets/NetFlix2.png";
-import User1 from "../../assets/User1.png";
-import User2 from "../../assets/User2.png";
-import User3 from "../../assets/User3.jfif";
-import User4 from "../../assets/User4.jpg";
-import User5 from "../../assets/User5.png";
 import { Link } from "react-router-dom";
 
-const Header = () => {
+const NETFLIX_LOGO = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
+const DEFAULT_AVATAR = "https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png";
+
+const Header = ({ onOpenMetrics, onToggleCustomBuilder, showCustomBuilder }) => {
   const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
-    window.addEventListener("scroll", listenScrollEvent);
-
-    return () => window.removeEventListener("scroll", listenScrollEvent);
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 7);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const userImage = useSelector((state) => {
-    return state.ProfileData;
-  });
-  const listenScrollEvent = (event) => {
-    if (window.scrollY > 7) {
-      return setIsScrolled(true);
-    } else if (window.scrollY < 7) {
-      return setIsScrolled(false);
-    }
-  };
   return (
-    <div
-      className={`${
-        isScrolled ? "md:bg-[#0c0c0cd5]" : "md:bg-transparent"
-      } sticky top-0 z-10  flex items-center   justify-between rounded-b-lg bg-[#0c0c0cee] px-3 text-zinc-600 md:fixed md:w-full md:rounded-b-none`}
+    <header
+      className={`fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-6 py-4 transition-colors duration-300 ${
+        isScrolled ? "bg-[#141414]/95 backdrop-blur-md shadow-lg" : "bg-gradient-to-b from-black/90 to-transparent"
+      }`}
     >
-      <Link to="/home" className="md:ml-10">
-        {" "}
-        <img
-          className="w-12 rounded-full bg-transparent md:hidden "
-          src={Netflix}
-          alt="NetFlix Logo"
-        />{" "}
-        <img
-          className="hidden md:block  md:w-[7.5rem]"
-          src={NetflixLOGO}
-          alt=""
-        />{" "}
-      </Link>
-      <div className="hidden font-medium text-white md:-ml-[40rem] md:flex md:w-[22rem] md:justify-between ">
-        <Link to="/home" className="hover:text-zinc-600">
-          Home
+      <div className="flex items-center space-x-6 md:space-x-8">
+        <Link to="/home" className="flex items-center gap-2">
+          <img className="w-24 md:w-28 object-contain" src={NETFLIX_LOGO} alt="Netflix" />
+          <span className="hidden sm:inline-block rounded bg-red-600/20 border border-red-500/40 text-[10px] uppercase font-black text-red-500 px-1.5 py-0.5 tracking-wider">
+            CineMatch AI
+          </span>
         </Link>
-        <Link to="/new" className="hover:text-zinc-600">
-          New & Popular
-        </Link>
-        <Link to="/watchlist" className="hover:text-zinc-600 ">
-          My List
+        <nav className="hidden md:flex space-x-5 text-xs md:text-sm font-medium text-gray-200">
+          <Link to="/home" className="hover:text-white transition">Home</Link>
+          <button
+            onClick={onToggleCustomBuilder}
+            className={`transition flex items-center gap-1.5 ${
+              showCustomBuilder ? "text-red-400 font-bold" : "hover:text-white text-gray-300"
+            }`}
+          >
+            <span>🛠️</span> Build Taste Profile
+          </button>
+          <button
+            onClick={onOpenMetrics}
+            className="hover:text-white text-gray-300 transition flex items-center gap-1.5"
+          >
+            <span>📊</span> Model Analytics
+          </button>
+        </nav>
+      </div>
+
+      <div className="flex items-center space-x-3 md:space-x-4">
+        {/* Mobile quick action buttons */}
+        <button
+          onClick={onToggleCustomBuilder}
+          className="md:hidden rounded-lg bg-neutral-800 border border-neutral-700 px-2.5 py-1 text-xs text-gray-200"
+          title="Build Taste Profile"
+        >
+          🛠️
+        </button>
+        <button
+          onClick={onOpenMetrics}
+          className="md:hidden rounded-lg bg-neutral-800 border border-neutral-700 px-2.5 py-1 text-xs text-gray-200"
+          title="Analytics"
+        >
+          📊
+        </button>
+        <Link to="/">
+          <img
+            className="w-8 h-8 rounded-sm object-cover cursor-pointer hover:ring-2 hover:ring-red-600 transition"
+            src={DEFAULT_AVATAR}
+            alt="Profile"
+            title="Switch User Profile"
+          />
         </Link>
       </div>
-      <Link to="/profile" className="md:mr-12">
-        <img
-          className="w-7 rounded-sm md:w-9 "
-          src={ eval(userImage) }
-          alt="User Image"
-        />
-      </Link>
-    </div>
+    </header>
   );
 };
 

@@ -2,53 +2,37 @@ import React, { useEffect, useState } from "react";
 import axios from "../../Requests/axios";
 import Card from "../Card/Card";
 
-const baseUrl = "https://image.tmdb.org/t/p/original/";
+const BASE_IMAGE_URL = "https://image.tmdb.org/t/p/original/";
+
 const Row = ({ title, fetchUrl }) => {
   const [movies, setMovies] = useState([]);
 
   useEffect(() => {
-    async function getMovieArray() {
-      const recievedMoviesArray = await axios.get(fetchUrl);
-      setMovies(recievedMoviesArray.data.results);
+    async function fetchData() {
+      try {
+        const response = await axios.get(fetchUrl);
+        setMovies(response.data.results || []);
+      } catch (err) {
+        console.error(err);
+      }
     }
-    getMovieArray();
-  }, []);
+    fetchData();
+  }, [fetchUrl]);
+
   return (
-    <div className="pt-6">
-      <h1 className="mb-2  ml-[.7rem] text-xl font-bold text-white md:font-semibold">
+    <div className="py-4 px-6 md:px-12">
+      <h2 className="mb-3 text-lg md:text-xl font-bold text-white tracking-wide">
         {title}
-      </h1>
-      <div className="no-scrollbar grid grid-flow-col overflow-x-scroll px-2 md:hidden ">
-        {movies &&
-          movies.length > 0 &&
-          movies.map((i) => (
-            <Card
-              key={i && i.id}
-              image_src={`${baseUrl}${
-                i && i.poster_path
-                  ? `${i.poster_path}`
-                  : "/kpTqWqLYcf1uErnx5VXLah4EWJZ.jpg"
-              }`}
-              image_alt={i && i.original_title}
-              id={i.id}
-            />
-          ))}
-      </div>
-      <div className="no-scrollbar hidden grid-flow-col overflow-x-scroll px-2 md:grid  ">
-        {movies &&
-          movies.length > 0 &&
-          movies.map((i) => (
-            <Card
-              key={i && i.id}
-              image_src={`${baseUrl}${
-                i && i.backdrop_path
-                  ? `${i.backdrop_path}`
-                  : "/pWG70WnGxK77gWySabRd9kCeNsH.jpg"
-              }`}
-              image_alt={i && i.original_title}
-              id={i.id}
-            />
-          ))}
+      </h2>
+      <div className="no-scrollbar flex space-x-3 overflow-x-scroll scroll-smooth pb-2">
+        {movies.map((movie) => (
+          <Card
+            key={movie.id}
+            id={movie.id}
+            image_src={`${BASE_IMAGE_URL}${movie.backdrop_path || movie.poster_path}`}
+            image_alt={movie.title || movie.name}
+          />
+        ))}
       </div>
     </div>
   );
