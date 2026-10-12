@@ -1,88 +1,89 @@
-"""Offline evaluation with a temporal per-user holdout.
+"""Offline evaluation on the held-out test fold.
 
-Each user's most recent `test_fraction` of ratings is hidden; models train on the rest and must
-surface the hidden items the user rated >= like_threshold.
+Trains on train+validation, reports on test. Run `python -m scripts.tune` first to tune on validation.
 Run: python -m scripts.evaluate
 """
 from __future__ import annotations
 
-import argparse
 import json
-import time
-from collections import defaultdict
-from dataclasses import replace
+from dataclasses import asdict, replace
 
-import numpy as np
 import pandas as pd
 
-from app import metrics
-from app.config import settings
-from app.data import load_dataset
+from app.config import Settings, settings
+from app.data import Dataset, load_dataset
 from app.engine import Engine
+from app.evaluation.plots import plot_mmr_tradeoff, plot_segments
+from app.evaluation.runner import DEFAULT_LAMBDAS, Benchmark, Strategy, run_strategy, sweep_mmr_lambda
+from app.evaluation.splits import relevant_by_user, temporal_split
+
+CORE_MODELS = ["popularity", "content", "collaborative", "hybrid"]
 
 
-def temporal_split(ratings: pd.DataFrame, test_fraction: float, min_ratings: int):
-    ordered = ratings.sort_values(["user", "timestamp"], kind="stable")
-    position = ordered.groupby("user").cumcount()
-    size = ordered.groupby("user")["item"].transform("size")
-    is_test = (size >= min_ratings) & (position >= size * (1 - test_fraction))
-    return ordered[~is_test], ordered[is_test]
+def build_strategies(engine: Engine, train: Dataset) -> list[Strategy]:
+    hybrid = engine.hybrid
+    strategies = [
+        Strategy("popularity", engine, hybrid.popularity.score),
+        Strategy("content", engine, hybrid.content.score),
+        Strategy("collaborative", engine, hybrid.collaborative.score),
+        Strategy("hybrid", engine, hybrid.score),
+        Strategy("hybrid + MMR", engine, hybrid.score, diversify=True),
+    ]
+    if settings != Settings():   # a tuned config is live: also show what tuning bought
+        baseline = Engine(train, Settings())
+        strategies.append(Strategy("hybrid (default cfg)", baseline, baseline.hybrid.score))
+    return strategies
 
 
-def evaluate_strategy(engine: Engine, scorer, diversify: bool, relevant: pd.Series, k: int, self_info: np.ndarray) -> dict:
-    rows: dict[str, list[float]] = defaultdict(list)
-    lists: list[np.ndarray] = []
-    for user, truth in relevant.items():
-        profile = engine.profile_at(user)
-        started = time.perf_counter()
-        ranked = engine.select(scorer(profile), profile, k, diversify=diversify)
-        rows["latency_ms"].append((time.perf_counter() - started) * 1000)
-        rows["precision"].append(metrics.precision_at_k(ranked, truth, k))
-        rows["recall"].append(metrics.recall_at_k(ranked, truth, k))
-        rows["map"].append(metrics.average_precision_at_k(ranked, truth, k))
-        rows["ndcg"].append(metrics.ndcg_at_k(ranked, truth, k))
-        rows["diversity"].append(metrics.diversity(engine.hybrid.content.similarity(ranked, ranked)))
-        rows["novelty"].append(metrics.novelty(ranked, self_info))
-        lists.append(ranked)
-    summary = {name: round(float(np.mean(values)), 4) for name, values in rows.items()}
-    summary["coverage"] = round(metrics.catalog_coverage(lists, int(engine.eligible.sum())), 4)
-    return summary
+def print_verdict(ndcg: pd.DataFrame) -> None:
+    """Say plainly, per segment, whether the hybrid wins. Report it either way."""
+    print("Verdict (NDCG, core models)")
+    for segment in ndcg.columns:
+        column = ndcg.loc[CORE_MODELS, segment]
+        leader = column.idxmax()
+        note = "hybrid leads" if leader == "hybrid" else f"{leader} leads; hybrid is {column['hybrid'] / column[leader] - 1:+.1%}"
+        print(f"  {segment:>6}: {note}")
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--k", type=int, default=10)
-    parser.add_argument("--test-fraction", type=float, default=0.2)
-    parser.add_argument("--min-ratings", type=int, default=10)
-    args = parser.parse_args()
-
+    cfg = settings.evaluation
     dataset = load_dataset(settings.data_dir)
-    train, test = temporal_split(dataset.ratings, args.test_fraction, args.min_ratings)
-    engine = Engine(replace(dataset, ratings=train), settings)   # trained on train only: no leakage
+    fold = temporal_split(dataset.ratings, cfg.test_fraction, cfg.validation_fraction, cfg.min_ratings).final
+    train = replace(dataset, ratings=fold.train)
+    engine = Engine(train, settings)   # trained on train+validation only: no test leakage
+    bench = Benchmark.from_config(engine, relevant_by_user(fold.holdout, settings.like_threshold), cfg)
 
-    relevant = test[test["rating"] >= settings.like_threshold].groupby("user")["item"].agg(set)
-    self_info = -np.log2((engine.item_counts + 1) / (len(engine.user_ids) + 1))
-    hybrid = engine.hybrid
+    runs = {s.name: run_strategy(s, bench) for s in build_strategies(engine, train)}
+    results = {name: run.summary() for name, run in runs.items()}
+    segments = {name: run.by_segment(bench.segments) for name, run in runs.items()}
+    tradeoff = sweep_mmr_lambda(engine, bench, DEFAULT_LAMBDAS)
+    sizes = {str(label): int(n) for label, n in bench.segments.value_counts().sort_index().items()}
 
-    strategies = {
-        "popularity": (hybrid.popularity.score, False),
-        "content": (hybrid.content.score, False),
-        "collaborative": (hybrid.collaborative.score, False),
-        "hybrid": (hybrid.score, False),
-        "hybrid + MMR": (hybrid.score, True),
-    }
-    results = {
-        name: evaluate_strategy(engine, scorer, diversify, relevant, args.k, self_info)
-        for name, (scorer, diversify) in strategies.items()
-    }
+    ndcg = pd.DataFrame(
+        {name: {seg: m["ndcg"] for seg, m in by_seg.items()} for name, by_seg in segments.items()}
+    ).T
+    print(f"Users evaluated: {len(bench.relevant)} | K={cfg.k} | segment sizes: {sizes}\n")
+    print(pd.DataFrame(results).T.to_string(), "\n")
+    print("NDCG by user activity (training ratings per user)")
+    print(ndcg.to_string(), "\n")
+    print_verdict(ndcg)
 
-    print(f"Users evaluated: {len(relevant)} | K={args.k}\n")
-    print(pd.DataFrame(results).T.to_string())
-
-    settings.metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    settings.metrics_path.write_text(
-        json.dumps({"k": args.k, "users_evaluated": len(relevant), "split": "temporal per-user holdout", "results": results}, indent=2)
-    )
+    out = settings.metrics_path.parent
+    out.mkdir(parents=True, exist_ok=True)
+    plot_segments(ndcg.loc[CORE_MODELS], out / "segments_ndcg.png")
+    plot_mmr_tradeoff(tradeoff, out / "mmr_tradeoff.png")
+    settings.metrics_path.write_text(json.dumps({
+        "k": cfg.k,
+        "users_evaluated": len(bench.relevant),
+        "split": "temporal per-user holdout (train+validation -> test)",
+        "config": {"svd_components": settings.svd_components, "mmr_lambda": settings.mmr_lambda,
+                   "blend": asdict(settings.blend)},
+        "segment_edges": list(cfg.segment_edges),
+        "segment_sizes": sizes,
+        "results": results,
+        "segments": segments,
+        "mmr_tradeoff": tradeoff,
+    }, indent=2))
 
 
 if __name__ == "__main__":

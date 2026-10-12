@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 import numpy as np
 from scipy.stats import rankdata
 
@@ -9,6 +11,12 @@ from app.models.base import ScoringModel
 from app.models.collaborative import CollaborativeModel
 from app.models.content import ContentModel
 from app.models.popularity import PopularityModel
+
+
+def combine(blend: BlendWeights, parts: Mapping[str, np.ndarray], n_ratings: int) -> np.ndarray:
+    """Blend per-model percentile scores using the weights a viewer of this history size earns."""
+    weights = blend.weights_for(n_ratings)
+    return sum(weights[name] * part for name, part in parts.items())
 
 
 class HybridModel(ScoringModel):
@@ -48,24 +56,19 @@ class HybridModel(ScoringModel):
         return self
 
     def weights_for(self, n_ratings: int) -> dict[str, float]:
-        """Blend weights for a viewer with n_ratings ratings (cold start leans on popularity)."""
-        b = self._blend
-        raw = {
-            self.collaborative.name: b.collaborative * min(1.0, n_ratings / b.collaborative_ramp),
-            self.content.name: b.content * min(1.0, n_ratings / b.content_ramp),
-            self.popularity.name: b.popularity,
-        }
-        total = sum(raw.values())
-        return {name: weight / total for name, weight in raw.items()}
+        return self._blend.weights_for(n_ratings)
 
-    def score_detailed(self, profile: Profile) -> tuple[np.ndarray, dict[str, np.ndarray]]:
-        """Blended score plus each model's percentile score (used for explanations)."""
-        parts = {
+    def component_scores(self, profile: Profile) -> dict[str, np.ndarray]:
+        """Each model's percentile score per item (0 for ineligible items). Independent of blend weights."""
+        return {
             m.name: self._percentile(m.score(profile))
             for m in (self.popularity, self.content, self.collaborative)
         }
-        weights = self.weights_for(len(profile))
-        return sum((weights[n] * p for n, p in parts.items()), start=np.zeros_like(self.eligible, dtype=float)), parts
+
+    def score_detailed(self, profile: Profile) -> tuple[np.ndarray, dict[str, np.ndarray]]:
+        """Blended score plus each model's percentile score (used for explanations)."""
+        parts = self.component_scores(profile)
+        return combine(self._blend, parts, len(profile)), parts
 
     def score(self, profile: Profile) -> np.ndarray:
         return self.score_detailed(profile)[0]

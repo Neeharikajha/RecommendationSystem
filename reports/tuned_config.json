@@ -1,0 +1,11 @@
+{
+  "svd_components": 20,
+  "mmr_lambda": 0.9,
+  "blend": {
+    "collaborative": 0.7,
+    "content": 0.1,
+    "popularity": 0.2,
+    "collaborative_ramp": 20,
+    "content_ramp": 3
+  }
+}

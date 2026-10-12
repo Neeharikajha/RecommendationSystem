@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from app.config import settings
+from app.config import Settings
 from app.data import Dataset
 from app.engine import Engine
 
@@ -31,4 +31,4 @@ def dataset() -> Dataset:
 
 @pytest.fixture(scope="session")
 def engine(dataset: Dataset) -> Engine:
-    return Engine(dataset, replace(settings, svd_components=8))
+    return Engine(dataset, replace(Settings(), svd_components=8))

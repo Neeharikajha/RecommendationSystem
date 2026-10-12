@@ -1,4 +1,4 @@
-﻿from __future__ import annotations
+from __future__ import annotations
 
 from contextlib import asynccontextmanager
 
@@ -27,6 +27,9 @@ def create_app() -> FastAPI:
     async def not_found(_: Request, exc: NotFoundError) -> JSONResponse:
         return JSONResponse(status_code=404, content={"detail": str(exc)})
 
+    reports_dir = settings.metrics_path.parent
+    if reports_dir.exists():
+        app.mount("/reports", StaticFiles(directory=reports_dir), name="reports")
     if settings.static_dir.exists():
         app.mount("/", StaticFiles(directory=settings.static_dir, html=True), name="static")
     return app

@@ -50,9 +50,15 @@ class Engine:
     def profile_from_ratings(self, ratings: Iterable[tuple[int, float]]) -> Profile:
         return Profile.from_pairs({self._item(movie_id): rating for movie_id, rating in ratings})
 
-    # ---- core ranking ---------------------------------------------------------------------
     def select(
-        self, scores: np.ndarray, profile: Profile, k: int, *, genre: str | None = None, diversify: bool = True
+        self,
+        scores: np.ndarray,
+        profile: Profile,
+        k: int,
+        *,
+        genre: str | None = None,
+        diversify: bool = True,
+        mmr_lambda: float | None = None,
     ) -> np.ndarray:
         """Pick k unseen, eligible items by score; optionally re-rank with MMR for diversity."""
         mask = self.eligible.copy()
@@ -64,9 +70,10 @@ class Engine:
         pool = top_k(scores, mask, max(self._config.mmr_pool, 3 * k))
         if len(pool) <= 1:
             return pool
+        lam = self._config.mmr_lambda if mmr_lambda is None else mmr_lambda
         similarity = self.hybrid.content.similarity(pool, pool)
-        return mmr_rerank(pool, scores[pool], similarity, k, self._config.mmr_lambda)
-
+        return mmr_rerank(pool, scores[pool], similarity, k, lam)
+    
     def recommend(self, profile: Profile, k: int = 12, *, genre: str | None = None) -> list[s.Recommendation]:
         scores, parts = self.hybrid.score_detailed(profile)
         items = self.select(scores, profile, k, genre=genre)

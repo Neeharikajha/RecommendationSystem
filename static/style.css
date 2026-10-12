@@ -249,3 +249,9 @@ th:first-child,
 td:first-child {
   text-align: left;
 }
+
+.full { width:100%; }
+.panel h3 { width:100%; margin:.9rem 0 0; font-size:1rem; }
+.plots { display:flex; flex-wrap:wrap; gap:1rem; width:100%; }
+.plots img { flex:1 1 340px; max-width:100%; background:#fff; border-radius:6px; }
+

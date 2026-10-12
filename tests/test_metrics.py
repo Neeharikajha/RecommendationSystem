@@ -24,3 +24,8 @@ def test_mmr_prefers_dissimilar_second_pick():
     candidates, relevance = np.array([0, 1, 2]), np.array([1.0, 0.95, 0.9])
     similarity = np.array([[1, 1, 0], [1, 1, 0], [0, 0, 1]], dtype=float)
     assert mmr_rerank(candidates, relevance, similarity, 2, 0.5).tolist() == [0, 2]
+
+
+def test_popularity_bias_is_share_of_head_items():
+    head = np.array([True, True, False, False])
+    assert metrics.popularity_bias(np.array([0, 2]), head) == 0.5

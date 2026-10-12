@@ -62,7 +62,44 @@ Precision, Recall, MAP, NDCG (ranking quality); Diversity (1 − mean pairwise c
 Novelty (mean −log2 item popularity); Coverage (share of eligible catalog ever recommended); Latency (ms/user).
 Baselines: each model alone. Results (`reports/metrics.json`):
 
-«paste table»
+| Model | Precision@10 | Recall@10 | MAP@10 | NDCG@10 | Diversity | Novelty | Pop Bias | Latency (ms) | Coverage |
+|---|---|---|---|---|---|---|---|---|---|
+| popularity | 0.0431 | 0.0324 | 0.0251 | 0.0553 | 0.7650 | 2.3301 | 0.8760 | 0.08 | 0.0178 |
+| content | 0.0079 | 0.0048 | 0.0033 | 0.0093 | 0.1281 | 5.5163 | 0.0409 | 0.49 | 0.5563 |
+| collaborative | 0.0713 | 0.0579 | 0.0449 | 0.0918 | 0.7894 | 2.2846 | 0.8959 | 0.18 | 0.1636 |
+| hybrid | 0.0598 | 0.0500 | 0.0338 | 0.0731 | 0.6539 | 2.6859 | 0.8005 | 2.66 | 0.1159 |
+| hybrid + MMR | 0.0581 | 0.0438 | 0.0330 | 0.0715 | 0.8521 | 2.6545 | 0.8157 | 2.63 | 0.1053 |
+| hybrid (default cfg) | 0.0448 | 0.0374 | 0.0255 | 0.0582 | 0.5467 | 3.1919 | 0.6287 | 2.29 | 0.1758 |
+
+### Tuning protocol
+Per-user chronological split: oldest 70% train, next 10% validation, newest 20% test. Hyper-parameters
+(SVD size, blend weights, ramps) were grid-searched on validation by NDCG@10 (216 blends × 3 SVD sizes), with each
+model constrained to ≥ 10% base weight. `mmr_lambda` is the most diverse value losing ≤ 2% relative NDCG.
+The tuned config (`reports/tuned_config.json`) is what the deployed app serves. Final numbers use a model
+retrained on train+validation and evaluated once on test. Evidence: `reports/tuning_results.json`.
+
+### Segments & popularity bias
+Users are bucketed by training-history size (<30 / 30-99 / 100+). Popularity bias = share of a
+list from the 10% most-rated eligible titles.
+
+**NDCG by user activity (training ratings per user):**
+
+| Model | <30 (n=154) | 30–99 (n=233) | 100+ (n=205) |
+|---|---|---|---|
+| popularity | 0.0434 | 0.0378 | 0.0841 |
+| content | 0.0040 | 0.0034 | 0.0199 |
+| collaborative | 0.0554 | 0.0727 | 0.1409 |
+| hybrid | 0.0465 | 0.0601 | 0.1078 |
+| hybrid + MMR | 0.0433 | 0.0600 | 0.1057 |
+| hybrid (default cfg) | 0.0375 | 0.0523 | 0.0803 |
+
+**Verdict (NDCG, core models):**
+- `<30`: collaborative leads; hybrid is -16.1%
+- `30-99`: collaborative leads; hybrid is -17.3%
+- `100+`: collaborative leads; hybrid is -23.5%
+
+Caveat: every MovieLens user has ≥ 20 ratings, so this is a light-vs-heavy comparison, not true cold start.
+
 
 Online metrics we would track in production: click-through, play-start rate, completion/retention, A/B-tested.
 

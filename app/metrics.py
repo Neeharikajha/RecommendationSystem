@@ -43,3 +43,7 @@ def novelty(ranked: np.ndarray, self_information: np.ndarray) -> float:
 
 def catalog_coverage(lists: list[np.ndarray], n_eligible: int) -> float:
     return len(set(np.concatenate(lists).tolist())) / n_eligible
+
+def popularity_bias(ranked: np.ndarray, head: np.ndarray) -> float:
+    """Share of a list drawn from the head of the catalog (`head` is a boolean mask over items)."""
+    return float(head[ranked].mean())

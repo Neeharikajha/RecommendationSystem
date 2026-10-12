@@ -264,29 +264,28 @@ $("#search").addEventListener("input", (e) => {
   }, 250);
 });
 
+function table(rows, label) {
+  const cols = Object.keys(Object.values(rows)[0]);
+  return h("table", {},
+    h("tr", {}, h("th", {}, label), ...cols.map((c) => h("th", {}, c))),
+    ...Object.entries(rows).map(([name, m]) => h("tr", {}, h("td", {}, name), ...cols.map((c) => h("td", {}, m[c])))));
+}
+
 async function showMetrics() {
   const panel = $("#panel-metrics");
   try {
-    const { k, users_evaluated, results } = await api("/metrics");
-    const cols = Object.keys(Object.values(results)[0]);
+    const { k, users_evaluated, results, segments, mmr_tradeoff } = await api("/metrics");
+    const ndcgBySegment = Object.fromEntries(Object.entries(segments).map(([model, bySegment]) =>
+      [model, Object.fromEntries(Object.entries(bySegment).map(([segment, m]) => [segment, m.ndcg]))]));
     panel.replaceChildren(
-      h(
-        "p",
-        { class: "muted", style: "width:100%" },
-        `Temporal holdout · ${users_evaluated} users · K=${k}`,
-      ),
-      h(
-        "table",
-        {},
-        h("tr", {}, h("th", {}, "model"), ...cols.map((c) => h("th", {}, c))),
-        ...Object.entries(results).map(([name, m]) =>
-          h("tr", {}, h("td", {}, name), ...cols.map((c) => h("td", {}, m[c]))),
-        ),
-      ),
-    );
-  } catch (err) {
-    panel.replaceChildren(h("span", { class: "muted" }, err.message));
-  }
+      h("p", { class: "muted full" }, `Temporal holdout · ${users_evaluated} users · K=${k}`),
+      h("h3", {}, "Overall"), table(results, "model"),
+      h("h3", {}, "NDCG by user activity (ratings in training history)"), table(ndcgBySegment, "model"),
+      h("h3", {}, "Accuracy vs diversity (MMR λ)"), table(mmr_tradeoff, "λ"),
+      h("div", { class: "plots" },
+        h("img", { src: "/reports/segments_ndcg.png", alt: "NDCG by user activity" }),
+        h("img", { src: "/reports/mmr_tradeoff.png", alt: "Accuracy vs diversity" })));
+  } catch (err) { panel.replaceChildren(h("span", { class: "muted" }, err.message)); }
 }
 
 document.querySelectorAll(".tab").forEach((tab) =>

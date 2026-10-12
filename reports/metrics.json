@@ -1,57 +1,373 @@
 {
   "k": 10,
-  "users_evaluated": 591,
-  "split": "temporal per-user holdout",
+  "users_evaluated": 592,
+  "split": "temporal per-user holdout (train+validation -> test)",
+  "config": {
+    "svd_components": 20,
+    "mmr_lambda": 0.9,
+    "blend": {
+      "collaborative": 0.7,
+      "content": 0.1,
+      "popularity": 0.2,
+      "collaborative_ramp": 20,
+      "content_ramp": 3
+    }
+  },
+  "segment_edges": [
+    30,
+    100
+  ],
+  "segment_sizes": {
+    "<30": 154,
+    "30-99": 233,
+    "100+": 205
+  },
   "results": {
     "popularity": {
-      "latency_ms": 0.0735,
-      "precision": 0.0426,
-      "recall": 0.0332,
-      "map": 0.025,
-      "ndcg": 0.0552,
-      "diversity": 0.7631,
-      "novelty": 2.3295,
-      "coverage": 0.0174
+      "precision": 0.0431,
+      "recall": 0.0324,
+      "map": 0.0251,
+      "ndcg": 0.0553,
+      "diversity": 0.765,
+      "novelty": 2.3301,
+      "popularity_bias": 0.876,
+      "latency_ms": 0.0808,
+      "coverage": 0.0178
     },
     "content": {
-      "latency_ms": 0.3944,
-      "precision": 0.0083,
-      "recall": 0.005,
-      "map": 0.0032,
+      "precision": 0.0079,
+      "recall": 0.0048,
+      "map": 0.0033,
       "ndcg": 0.0093,
-      "diversity": 0.1265,
-      "novelty": 5.5056,
-      "coverage": 0.5531
+      "diversity": 0.1281,
+      "novelty": 5.5163,
+      "popularity_bias": 0.0409,
+      "latency_ms": 0.4876,
+      "coverage": 0.5563
     },
     "collaborative": {
-      "latency_ms": 0.3444,
-      "precision": 0.0653,
-      "recall": 0.0645,
-      "map": 0.0404,
-      "ndcg": 0.085,
-      "diversity": 0.8004,
-      "novelty": 2.4561,
-      "coverage": 0.1932
+      "precision": 0.0713,
+      "recall": 0.0579,
+      "map": 0.0449,
+      "ndcg": 0.0918,
+      "diversity": 0.7894,
+      "novelty": 2.2846,
+      "popularity_bias": 0.8959,
+      "latency_ms": 0.177,
+      "coverage": 0.1636
     },
     "hybrid": {
-      "latency_ms": 3.0534,
-      "precision": 0.0435,
-      "recall": 0.0377,
-      "map": 0.0251,
-      "ndcg": 0.0567,
-      "diversity": 0.5485,
-      "novelty": 3.1902,
-      "coverage": 0.1767
+      "precision": 0.0598,
+      "recall": 0.05,
+      "map": 0.0338,
+      "ndcg": 0.0731,
+      "diversity": 0.6539,
+      "novelty": 2.6859,
+      "popularity_bias": 0.8005,
+      "latency_ms": 2.6643,
+      "coverage": 0.1159
     },
     "hybrid + MMR": {
-      "latency_ms": 3.7437,
-      "precision": 0.0469,
-      "recall": 0.0415,
-      "map": 0.0263,
+      "precision": 0.0581,
+      "recall": 0.0438,
+      "map": 0.033,
+      "ndcg": 0.0715,
+      "diversity": 0.8521,
+      "novelty": 2.6545,
+      "popularity_bias": 0.8157,
+      "latency_ms": 2.628,
+      "coverage": 0.1053
+    },
+    "hybrid (default cfg)": {
+      "precision": 0.0448,
+      "recall": 0.0374,
+      "map": 0.0255,
+      "ndcg": 0.0582,
+      "diversity": 0.5467,
+      "novelty": 3.1919,
+      "popularity_bias": 0.6287,
+      "latency_ms": 2.2889,
+      "coverage": 0.1758
+    }
+  },
+  "segments": {
+    "popularity": {
+      "<30": {
+        "precision": 0.0208,
+        "recall": 0.0477,
+        "map": 0.0232,
+        "ndcg": 0.0434,
+        "diversity": 0.7622,
+        "novelty": 2.2176,
+        "popularity_bias": 0.9006,
+        "latency_ms": 0.0834,
+        "users": 154
+      },
+      "30-99": {
+        "precision": 0.0279,
+        "recall": 0.0305,
+        "map": 0.0164,
+        "ndcg": 0.0378,
+        "diversity": 0.7655,
+        "novelty": 2.2534,
+        "popularity_bias": 0.8979,
+        "latency_ms": 0.0793,
+        "users": 233
+      },
+      "100+": {
+        "precision": 0.0771,
+        "recall": 0.0231,
+        "map": 0.0364,
+        "ndcg": 0.0841,
+        "diversity": 0.7665,
+        "novelty": 2.5019,
+        "popularity_bias": 0.8327,
+        "latency_ms": 0.0804,
+        "users": 205
+      }
+    },
+    "content": {
+      "<30": {
+        "precision": 0.0019,
+        "recall": 0.0045,
+        "map": 0.002,
+        "ndcg": 0.004,
+        "diversity": 0.1343,
+        "novelty": 5.4204,
+        "popularity_bias": 0.0519,
+        "latency_ms": 0.4513,
+        "users": 154
+      },
+      "30-99": {
+        "precision": 0.003,
+        "recall": 0.0035,
+        "map": 0.0011,
+        "ndcg": 0.0034,
+        "diversity": 0.1271,
+        "novelty": 5.4819,
+        "popularity_bias": 0.0455,
+        "latency_ms": 0.4781,
+        "users": 233
+      },
+      "100+": {
+        "precision": 0.018,
+        "recall": 0.0063,
+        "map": 0.0067,
+        "ndcg": 0.0199,
+        "diversity": 0.1245,
+        "novelty": 5.6275,
+        "popularity_bias": 0.0273,
+        "latency_ms": 0.5256,
+        "users": 205
+      }
+    },
+    "collaborative": {
+      "<30": {
+        "precision": 0.0266,
+        "recall": 0.0727,
+        "map": 0.0276,
+        "ndcg": 0.0554,
+        "diversity": 0.7782,
+        "novelty": 2.1656,
+        "popularity_bias": 0.9039,
+        "latency_ms": 0.172,
+        "users": 154
+      },
+      "30-99": {
+        "precision": 0.0558,
+        "recall": 0.0637,
+        "map": 0.0335,
+        "ndcg": 0.0727,
+        "diversity": 0.7853,
+        "novelty": 2.132,
+        "popularity_bias": 0.933,
+        "latency_ms": 0.175,
+        "users": 233
+      },
+      "100+": {
+        "precision": 0.1224,
+        "recall": 0.0401,
+        "map": 0.0707,
+        "ndcg": 0.1409,
+        "diversity": 0.8026,
+        "novelty": 2.5474,
+        "popularity_bias": 0.8478,
+        "latency_ms": 0.183,
+        "users": 205
+      }
+    },
+    "hybrid": {
+      "<30": {
+        "precision": 0.0273,
+        "recall": 0.0676,
+        "map": 0.0213,
+        "ndcg": 0.0465,
+        "diversity": 0.6404,
+        "novelty": 2.5298,
+        "popularity_bias": 0.8487,
+        "latency_ms": 2.6827,
+        "users": 154
+      },
+      "30-99": {
+        "precision": 0.0485,
+        "recall": 0.0551,
+        "map": 0.026,
+        "ndcg": 0.0601,
+        "diversity": 0.6449,
+        "novelty": 2.574,
+        "popularity_bias": 0.8446,
+        "latency_ms": 2.6093,
+        "users": 233
+      },
+      "100+": {
+        "precision": 0.0971,
+        "recall": 0.0311,
+        "map": 0.0521,
+        "ndcg": 0.1078,
+        "diversity": 0.6742,
+        "novelty": 2.9303,
+        "popularity_bias": 0.7141,
+        "latency_ms": 2.713,
+        "users": 205
+      }
+    },
+    "hybrid + MMR": {
+      "<30": {
+        "precision": 0.0214,
+        "recall": 0.0502,
+        "map": 0.022,
+        "ndcg": 0.0433,
+        "diversity": 0.8341,
+        "novelty": 2.5263,
+        "popularity_bias": 0.8526,
+        "latency_ms": 2.6144,
+        "users": 154
+      },
+      "30-99": {
+        "precision": 0.0459,
+        "recall": 0.0508,
+        "map": 0.0255,
+        "ndcg": 0.06,
+        "diversity": 0.8496,
+        "novelty": 2.5563,
+        "popularity_bias": 0.8494,
+        "latency_ms": 2.6105,
+        "users": 233
+      },
+      "100+": {
+        "precision": 0.0995,
+        "recall": 0.0311,
+        "map": 0.0497,
+        "ndcg": 0.1057,
+        "diversity": 0.8686,
+        "novelty": 2.8626,
+        "popularity_bias": 0.7498,
+        "latency_ms": 2.6581,
+        "users": 205
+      }
+    },
+    "hybrid (default cfg)": {
+      "<30": {
+        "precision": 0.0188,
+        "recall": 0.0491,
+        "map": 0.018,
+        "ndcg": 0.0375,
+        "diversity": 0.5433,
+        "novelty": 3.0303,
+        "popularity_bias": 0.6818,
+        "latency_ms": 2.2686,
+        "users": 154
+      },
+      "30-99": {
+        "precision": 0.0399,
+        "recall": 0.0435,
+        "map": 0.0226,
+        "ndcg": 0.0523,
+        "diversity": 0.5507,
+        "novelty": 3.013,
+        "popularity_bias": 0.6948,
+        "latency_ms": 2.2835,
+        "users": 233
+      },
+      "100+": {
+        "precision": 0.0698,
+        "recall": 0.0216,
+        "map": 0.0345,
+        "ndcg": 0.0803,
+        "diversity": 0.5447,
+        "novelty": 3.5168,
+        "popularity_bias": 0.5137,
+        "latency_ms": 2.3103,
+        "users": 205
+      }
+    }
+  },
+  "mmr_tradeoff": {
+    "0.5": {
+      "precision": 0.0465,
+      "recall": 0.0368,
+      "map": 0.0267,
       "ndcg": 0.0606,
-      "diversity": 0.8189,
-      "novelty": 3.1231,
-      "coverage": 0.1645
+      "diversity": 0.9387,
+      "novelty": 3.0127,
+      "popularity_bias": 0.6985,
+      "latency_ms": 2.4961,
+      "coverage": 0.129
+    },
+    "0.6": {
+      "precision": 0.047,
+      "recall": 0.0355,
+      "map": 0.0268,
+      "ndcg": 0.0606,
+      "diversity": 0.9362,
+      "novelty": 2.9748,
+      "popularity_bias": 0.71,
+      "latency_ms": 2.4877,
+      "coverage": 0.1254
+    },
+    "0.7": {
+      "precision": 0.05,
+      "recall": 0.0378,
+      "map": 0.0286,
+      "ndcg": 0.0635,
+      "diversity": 0.9304,
+      "novelty": 2.9157,
+      "popularity_bias": 0.7292,
+      "latency_ms": 2.4047,
+      "coverage": 0.1172
+    },
+    "0.8": {
+      "precision": 0.0544,
+      "recall": 0.0413,
+      "map": 0.0311,
+      "ndcg": 0.0683,
+      "diversity": 0.9135,
+      "novelty": 2.8069,
+      "popularity_bias": 0.7627,
+      "latency_ms": 2.3945,
+      "coverage": 0.1119
+    },
+    "0.9": {
+      "precision": 0.0581,
+      "recall": 0.0438,
+      "map": 0.033,
+      "ndcg": 0.0715,
+      "diversity": 0.8521,
+      "novelty": 2.6545,
+      "popularity_bias": 0.8157,
+      "latency_ms": 2.3958,
+      "coverage": 0.1053
+    },
+    "1.0": {
+      "precision": 0.0598,
+      "recall": 0.05,
+      "map": 0.0338,
+      "ndcg": 0.0731,
+      "diversity": 0.6539,
+      "novelty": 2.6859,
+      "popularity_bias": 0.8005,
+      "latency_ms": 2.3817,
+      "coverage": 0.1159
     }
   }
 }
