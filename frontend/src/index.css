@@ -13,10 +13,6 @@
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
-  .text-xs {
-    font-size: 0.53rem;
-    line-height: 0.8rem;
-  }
 }
 
 @layer base {

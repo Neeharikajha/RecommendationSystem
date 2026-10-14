@@ -112,12 +112,12 @@ const MovieModal = ({ rec, onClose }) => {
           </div>
 
           {/* Genres Chips */}
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs text-neutral-400 font-medium">Genres:</span>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="text-sm md:text-base text-neutral-300 font-semibold">Genres:</span>
             {movie.genres?.map((g) => (
               <span
                 key={g}
-                className="rounded-full bg-neutral-800 border border-neutral-700 px-2.5 py-0.5 text-xs font-semibold text-neutral-200"
+                className="rounded-full bg-neutral-800 border border-neutral-700 px-3.5 py-1 text-sm font-semibold text-neutral-100 shadow-sm"
               >
                 {g}
               </span>
@@ -128,15 +128,15 @@ const MovieModal = ({ rec, onClose }) => {
           <div className="rounded-xl bg-neutral-900/90 border border-neutral-800 p-5 space-y-4">
             <div className="flex items-start gap-3">
               <div className="flex-1">
-                <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-wide">
+                <h4 className="text-sm md:text-base font-bold text-emerald-400 uppercase tracking-wide">
                   Recommendation Details
                 </h4>
-                <p className="text-sm text-gray-200 mt-1 leading-relaxed">
+                <p className="text-base md:text-lg font-medium text-gray-100 mt-1.5 leading-relaxed">
                   {why.reason || "Matched via multi-modal hybrid score combining viewing history and film traits."}
                 </p>
                 {why.shared_genres?.length > 0 && (
-                  <p className="text-xs text-neutral-400 mt-1">
-                    Shared genre affinities: <strong className="text-neutral-200">{why.shared_genres.join(", ")}</strong>
+                  <p className="text-base text-neutral-300 mt-2 font-medium">
+                    Shared genre affinities: <strong className="text-white font-bold">{why.shared_genres.join(", ")}</strong>
                   </p>
                 )}
               </div>
@@ -144,20 +144,20 @@ const MovieModal = ({ rec, onClose }) => {
 
             {/* Model Signal Weight Bars */}
             {Object.keys(signals).length > 0 && (
-              <div className="pt-3 border-t border-neutral-800 space-y-2.5">
-                <p className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+              <div className="pt-4 border-t border-neutral-800 space-y-3.5">
+                <p className="text-sm font-bold text-neutral-300 uppercase tracking-wider">
                   Model Confidence Signals:
                 </p>
                 {Object.entries(signals).map(([name, val]) => (
-                  <div key={name} className="flex items-center gap-3 text-xs">
-                    <span className="w-28 capitalize font-medium text-neutral-300">
+                  <div key={name} className="flex items-center gap-3 text-sm md:text-base">
+                    <span className="w-36 md:w-40 capitalize font-medium text-neutral-200">
                       {name === "collaborative"
                         ? "Collaborative"
                         : name === "content"
                         ? "Content / Genre"
                         : "Popular Acclaim"}
                     </span>
-                    <div className="flex-1 h-2 rounded-full bg-neutral-800 overflow-hidden">
+                    <div className="flex-1 h-2.5 rounded-full bg-neutral-800 overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           name === "collaborative"
@@ -169,7 +169,7 @@ const MovieModal = ({ rec, onClose }) => {
                         style={{ width: `${Math.max(0, Math.min(1, val)) * 100}%` }}
                       />
                     </div>
-                    <span className="w-12 text-right text-gray-300 font-mono font-bold">
+                    <span className="w-14 text-right text-white font-mono font-bold text-sm md:text-base">
                       {Math.round(val * 100)}%
                     </span>
                   </div>

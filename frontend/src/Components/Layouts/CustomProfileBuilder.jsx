@@ -61,7 +61,7 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
   };
 
   return (
-    <div className="mx-6 md:mx-12 my-6 rounded-2xl bg-neutral-900/90 border border-neutral-800 p-6 backdrop-blur-md shadow-2xl">
+    <div className="relative z-30 mx-6 md:mx-12 my-6 rounded-2xl bg-[#141414] border border-neutral-800 p-6 shadow-2xl">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -95,7 +95,7 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
       </div>
 
       {/* Search Input Bar — relative container with high z-index for dropdown */}
-      <div className="relative mt-4" ref={searchRef}>
+      <div className="relative mt-4 z-50" ref={searchRef}>
         <input
           type="text"
           value={query}
@@ -109,14 +109,14 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
           </span>
         )}
 
-        {/* Live Search dropdown — z-50 so it floats above everything */}
+        {/* Live Search dropdown — z-[9999] so it floats above cards with solid 100% opaque bg */}
         {searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-xl bg-[#1c1c1c] border border-neutral-700 shadow-2xl">
+          <div className="absolute top-full left-0 right-0 z-[9999] mt-2 max-h-72 overflow-y-auto rounded-xl bg-[#141414] border-2 border-neutral-700 shadow-[0_25px_60px_rgba(0,0,0,0.98)]">
             {searchResults.map((m) => (
               <div
                 key={m.movie_id}
                 onClick={() => handleSelectMovie(m)}
-                className="flex items-center justify-between px-4 py-2.5 hover:bg-neutral-800 cursor-pointer text-sm text-gray-200 border-b border-neutral-800/50 last:border-b-0 transition"
+                className="flex items-center justify-between px-4 py-3 hover:bg-neutral-800 cursor-pointer text-sm text-gray-200 border-b border-neutral-800 last:border-b-0 transition"
               >
                 <div>
                   <span className="font-semibold text-white">{m.title}</span>
@@ -124,7 +124,7 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-gray-400">{m.genres?.slice(0, 2).join(", ")}</span>
-                  <span className="rounded bg-red-600/30 text-red-400 border border-red-600/40 text-[10px] px-2 py-0.5 font-bold">
+                  <span className="rounded bg-red-600 hover:bg-red-700 text-white text-xs px-2.5 py-1 font-bold shadow transition">
                     + Add
                   </span>
                 </div>
