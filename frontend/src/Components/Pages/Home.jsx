@@ -53,9 +53,24 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
     try {
       setLoadingBackend(true);
       setBackendError(null);
-      const data = await getUserHome(userId, 14);
+      const data = await getUserHome(userId, 10);
       setProfileData(data.profile);
-      setBackendRows(data.rows || []);
+
+      // Strict cross-row deduplication: once a movie is placed in a row, never repeat it in another row
+      const seenIds = new Set();
+      const dedupedRows = (data.rows || []).map((row) => {
+        const uniqueItems = [];
+        for (const item of row.items || []) {
+          const mId = item.movie?.movie_id || item.movie_id;
+          if (!seenIds.has(mId)) {
+            seenIds.add(mId);
+            uniqueItems.push(item);
+          }
+        }
+        return { ...row, items: uniqueItems };
+      }).filter((row) => row.items.length > 0);
+
+      setBackendRows(dedupedRows);
     } catch (err) {
       console.error("Backend fetch error:", err);
       setBackendError(err.message || "Failed to connect to recommendation backend.");
@@ -68,9 +83,24 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
     try {
       setLoadingBackend(true);
       setBackendError(null);
-      const data = await getCustomHome(ratings, 14);
+      const data = await getCustomHome(ratings, 10);
       setProfileData(data.profile);
-      setBackendRows(data.rows || []);
+
+      // Strict cross-row deduplication for custom profiles
+      const seenIds = new Set();
+      const dedupedRows = (data.rows || []).map((row) => {
+        const uniqueItems = [];
+        for (const item of row.items || []) {
+          const mId = item.movie?.movie_id || item.movie_id;
+          if (!seenIds.has(mId)) {
+            seenIds.add(mId);
+            uniqueItems.push(item);
+          }
+        }
+        return { ...row, items: uniqueItems };
+      }).filter((row) => row.items.length > 0);
+
+      setBackendRows(dedupedRows);
     } catch (err) {
       console.error("Custom profile error:", err);
       setBackendError(err.message);

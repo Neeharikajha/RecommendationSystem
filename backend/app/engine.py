@@ -59,10 +59,13 @@ class Engine:
         genre: str | None = None,
         diversify: bool = True,
         mmr_lambda: float | None = None,
+        exclude: Iterable[int] | None = None,
     ) -> np.ndarray:
         """Pick k unseen, eligible items by score; optionally re-rank with MMR for diversity."""
         mask = self.eligible.copy()
         mask[profile.items] = False
+        if exclude is not None:
+            mask[list(exclude)] = False
         if genre:
             mask &= self._genre_mask(genre)
         if not diversify:
@@ -74,9 +77,16 @@ class Engine:
         similarity = self.hybrid.content.similarity(pool, pool)
         return mmr_rerank(pool, scores[pool], similarity, k, lam)
     
-    def recommend(self, profile: Profile, k: int = 12, *, genre: str | None = None) -> list[s.Recommendation]:
+    def recommend(
+        self,
+        profile: Profile,
+        k: int = 10,
+        *,
+        genre: str | None = None,
+        exclude: Iterable[int] | None = None,
+    ) -> list[s.Recommendation]:
         scores, parts = self.hybrid.score_detailed(profile)
-        items = self.select(scores, profile, k, genre=genre)
+        items = self.select(scores, profile, k, genre=genre, exclude=exclude)
         weights = self.hybrid.weights_for(len(profile))
         anchors = self._anchors(items, profile)
         return [
@@ -88,13 +98,17 @@ class Engine:
             for i, anchor in zip(items, anchors)
         ]
 
-    def similar(self, movie_id: int, k: int = 12) -> list[s.Recommendation]:
+    def similar(self, movie_id: int, k: int = 10) -> list[s.Recommendation]:
         return self._similar(self._item(movie_id), k)
 
-    def popular_picks(self, profile: Profile, k: int = 12) -> list[s.Recommendation]:
+    def popular_picks(
+        self, profile: Profile, k: int = 10, *, exclude: Iterable[int] | None = None
+    ) -> list[s.Recommendation]:
         pop_scores = self.hybrid.popularity.score(profile)
         mask = self.eligible.copy()
         mask[profile.items] = False
+        if exclude is not None:
+            mask[list(exclude)] = False
         items = top_k(pop_scores, mask, k)
         return [
             s.Recommendation(
@@ -110,37 +124,48 @@ class Engine:
             for i in items
         ]
 
-    def home(self, profile: Profile, k: int = 12) -> s.HomeResponse:
+    def home(self, profile: Profile, k: int = 10) -> s.HomeResponse:
         cold = not len(profile)
         rows: list[s.Row] = []
+        seen: set[int] = set(profile.items)
 
         # 1. Primary Hybrid Personalised Picks (or Popular Right Now if cold)
-        rows.append(s.Row(title="Popular Right Now" if cold else "Top Picks for You", items=self.recommend(profile, k)))
+        top_picks = self.recommend(profile, k, exclude=seen)
+        if top_picks:
+            rows.append(s.Row(title="Popular Right Now" if cold else "Top Picks for You", items=top_picks))
+            seen.update(self._item(r.movie.movie_id) for r in top_picks)
 
-        # 2. Trending & Highly Rated Row (Popularity model priority)
-        rows.append(s.Row(title="Trending Now · Global Acclaim", items=self.popular_picks(profile, k)))
+        # 2. Trending & Highly Rated Row (Popularity model priority, strictly deduplicated)
+        pop_picks = self.popular_picks(profile, k, exclude=seen)
+        if pop_picks:
+            rows.append(s.Row(title="Trending Now · Global Acclaim", items=pop_picks))
+            seen.update(self._item(r.movie.movie_id) for r in pop_picks)
 
         if not cold:
             # Sort user liked items by rating desc
             liked_order = np.argsort(-profile.ratings, kind="stable")
             # Anchor 1: highest rated
             best1 = int(profile.items[liked_order[0]])
-            rows.append(
-                s.Row(title=f"Because you watched {self._cards[best1].title}", items=self._similar(best1, k, exclude=profile.items))
-            )
+            sim1 = self._similar(best1, k, exclude=seen)
+            if sim1:
+                rows.append(s.Row(title=f"Because you watched {self._cards[best1].title}", items=sim1))
+                seen.update(self._item(r.movie.movie_id) for r in sim1)
+
             # Anchor 2 (if user has another high rated movie with different genres)
             if len(liked_order) > 1:
                 best2 = int(profile.items[liked_order[1]])
                 if best2 != best1:
-                    rows.append(
-                        s.Row(title=f"More Like {self._cards[best2].title}", items=self._similar(best2, k, exclude=profile.items))
-                    )
+                    sim2 = self._similar(best2, k, exclude=seen)
+                    if sim2:
+                        rows.append(s.Row(title=f"More Like {self._cards[best2].title}", items=sim2))
+                        seen.update(self._item(r.movie.movie_id) for r in sim2)
 
-        # 3. Dynamic genre-specific hybrid picks (top 3 favourite genres)
+        # 3. Dynamic genre-specific hybrid picks (top 3 favourite genres, strictly deduplicated)
         for genre in self._favourite_genres(profile, 3):
-            genre_recs = self.recommend(profile, k, genre=genre)
+            genre_recs = self.recommend(profile, k, genre=genre, exclude=seen)
             if genre_recs:
                 rows.append(s.Row(title=f"Top {genre} Hits For You", items=genre_recs))
+                seen.update(self._item(r.movie.movie_id) for r in genre_recs)
 
         return s.HomeResponse(profile=self._summarise(profile), rows=rows)
 
@@ -164,14 +189,14 @@ class Engine:
         )
 
     # ---- internals ------------------------------------------------------------------------
-    def _similar(self, item: int, k: int, exclude: np.ndarray | None = None) -> list[s.Recommendation]:
+    def _similar(self, item: int, k: int, exclude: Iterable[int] | np.ndarray | None = None) -> list[s.Recommendation]:
         by_content = self.hybrid.content.similarity(np.array([item]))[0]
         by_taste = self.hybrid.collaborative.similarity(np.array([item]))[0]
         blended = (by_content + by_taste) / 2
         mask = self.eligible.copy()
         mask[item] = False
         if exclude is not None:
-            mask[exclude] = False
+            mask[list(exclude)] = False
         title = self._cards[item].title
         return [
             s.Recommendation(

@@ -12,12 +12,12 @@ export const getMeta = async () => {
   return res.data;
 };
 
-export const getUserHome = async (userId, k = 14) => {
+export const getUserHome = async (userId, k = 10) => {
   const res = await api.get(`/users/${userId}/home?k=${k}`);
   return res.data;
 };
 
-export const getCustomHome = async (ratings, k = 14) => {
+export const getCustomHome = async (ratings, k = 10) => {
   const res = await api.post("/home", { ratings, k });
   return res.data;
 };

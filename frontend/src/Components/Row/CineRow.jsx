@@ -4,8 +4,8 @@ import CineCard from "../Card/CineCard";
 const CineRow = ({ title, items = [], onCardClick }) => {
   if (!items || items.length === 0) return null;
 
-  // Display top 5 curated recommendations per row to fit the screen without horizontal scrolling
-  const displayItems = items.slice(0, 5);
+  // Display 10 curated recommendations per row everywhere without horizontal scrolling
+  const displayItems = items.slice(0, 10);
 
   return (
     <div className="py-4 px-6 md:px-12 space-y-3 relative overflow-visible">
@@ -20,15 +20,15 @@ const CineRow = ({ title, items = [], onCardClick }) => {
         </span>
       </div>
 
-      {/* Non-scrolling Row Grid: Clean responsive layout with zero horizontal scrolling */}
+      {/* Non-scrolling Row Grid: 5 columns on desktop x 2 rows = exactly 10 cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4 overflow-visible py-2">
         {displayItems.map((rec, index) => (
           <CineCard
             key={rec.movie?.movie_id || rec.movie_id}
             rec={rec}
             index={index}
-            isFirst={index === 0}
-            isLast={index === displayItems.length - 1}
+            isFirst={index % 5 === 0}
+            isLast={index % 5 === 4}
             onCardClick={onCardClick}
           />
         ))}
