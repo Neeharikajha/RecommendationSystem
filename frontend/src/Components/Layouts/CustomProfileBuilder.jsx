@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { searchMovies } from "../../Requests/backendApi";
 
 const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
@@ -6,6 +6,7 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [picked, setPicked] = useState([]); // Array of { movie, rating }
+  const searchRef = useRef(null);
 
   const handleSearch = async (val) => {
     setQuery(val);
@@ -53,6 +54,12 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
     onApplyProfile(ratingsPayload);
   };
 
+  // Truncate title to max 10 characters
+  const truncateTitle = (title) => {
+    if (!title) return "";
+    return title.length > 10 ? title.substring(0, 10) + "…" : title;
+  };
+
   return (
     <div className="mx-6 md:mx-12 my-6 rounded-2xl bg-neutral-900/90 border border-neutral-800 p-6 backdrop-blur-md shadow-2xl">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -61,7 +68,7 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
             Build Your Own Taste Profile
           </h2>
           <p className="text-xs text-gray-400 mt-1">
-            Pick movies you like, adjust star ratings, and the hybrid model will re-score recommendations in real-time.
+            Pick movies you like, adjust ratings, and the hybrid model will re-score recommendations in real-time.
           </p>
         </div>
 
@@ -69,7 +76,7 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
           <button
             onClick={handleRecommend}
             disabled={picked.length === 0}
-            className="rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 px-4 py-2 text-xs md:text-sm font-semibold text-white shadow transition flex items-center gap-1.5"
+            className="rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 px-5 py-2.5 text-sm md:text-base font-semibold text-white shadow transition flex items-center gap-1.5"
           >
             Generate My Recommendations ({picked.length})
           </button>
@@ -79,7 +86,7 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
                 setPicked([]);
                 onReset && onReset();
               }}
-              className="rounded-lg bg-neutral-800 hover:bg-neutral-700 px-3 py-2 text-xs font-medium text-gray-300 transition"
+              className="rounded-lg bg-neutral-700 hover:bg-neutral-600 px-5 py-2.5 text-sm font-semibold text-gray-200 border border-neutral-600 transition"
             >
               Reset
             </button>
@@ -87,24 +94,24 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
         </div>
       </div>
 
-      {/* Search Input Bar */}
-      <div className="relative mt-4">
+      {/* Search Input Bar — relative container with high z-index for dropdown */}
+      <div className="relative mt-4" ref={searchRef}>
         <input
           type="text"
           value={query}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder="Search 9,700+ movies to add (e.g. Inception, Pulp Fiction, Toy Story)..."
-          className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition"
+          className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition"
         />
         {isSearching && (
-          <span className="absolute right-3.5 top-3 text-xs text-gray-400">
+          <span className="absolute right-3.5 top-3.5 text-xs text-gray-400">
             Searching...
           </span>
         )}
 
-        {/* Live Search dropdown */}
+        {/* Live Search dropdown — z-50 so it floats above everything */}
         {searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 z-30 mt-1 max-h-60 overflow-y-auto rounded-xl bg-[#1c1c1c] border border-neutral-700 shadow-2xl">
+          <div className="absolute top-full left-0 right-0 z-50 mt-1 max-h-60 overflow-y-auto rounded-xl bg-[#1c1c1c] border border-neutral-700 shadow-2xl">
             {searchResults.map((m) => (
               <div
                 key={m.movie_id}
@@ -133,12 +140,12 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
           {picked.map((item) => (
             <div
               key={item.movie.movie_id}
-              className="flex items-center gap-2 rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-1.5 shadow"
+              className="flex items-center gap-2 rounded-xl bg-neutral-950 border border-neutral-800 px-3 py-2 shadow"
             >
-              <span className="text-xs font-medium text-white max-w-[180px] truncate">
-                {item.movie.title}
+              <span className="text-sm font-semibold text-white" title={item.movie.title}>
+                {truncateTitle(item.movie.title)}
               </span>
-              <div className="flex items-center gap-1 bg-neutral-900 rounded px-1.5 py-0.5 border border-neutral-800">
+              <div className="flex items-center gap-1 bg-neutral-900 rounded px-2 py-1 border border-neutral-700">
                 <span className="text-amber-400 text-xs font-bold">Rating:</span>
                 <input
                   type="number"
@@ -147,12 +154,12 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
                   step="0.5"
                   value={item.rating}
                   onChange={(e) => handleUpdateRating(item.movie.movie_id, e.target.value)}
-                  className="w-10 bg-transparent text-xs font-bold text-center text-white focus:outline-none"
+                  className="w-10 bg-transparent text-sm font-bold text-center text-white focus:outline-none"
                 />
               </div>
               <button
                 onClick={() => handleRemoveMovie(item.movie.movie_id)}
-                className="text-gray-400 hover:text-red-400 text-sm ml-1 transition"
+                className="text-gray-400 hover:text-red-400 text-base ml-1 transition font-bold"
                 title="Remove"
               >
                 x

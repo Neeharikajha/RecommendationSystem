@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CineCard from "./CineCard";
 import { getSimilarMovies } from "../../Requests/backendApi";
-import { getMovieImage, getRecommendationTag } from "../../Requests/imageHelper";
+import { getMovieImage, getRecommendationTag, handleImageError } from "../../Requests/imageHelper";
 
 const MovieModal = ({ rec, onClose }) => {
   const [similar, setSimilar] = useState([]);
@@ -54,6 +54,7 @@ const MovieModal = ({ rec, onClose }) => {
             src={imageUrl}
             alt={movie.title}
             className="h-full w-full object-cover brightness-95"
+            onError={handleImageError}
           />
 
           {/* Cinematic Overlay Gradients */}

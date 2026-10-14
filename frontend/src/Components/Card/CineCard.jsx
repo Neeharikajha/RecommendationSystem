@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
-import { getMovieImage, getRecommendationTag } from "../../Requests/imageHelper";
+import { getMovieImage, getRecommendationTag, handleImageError } from "../../Requests/imageHelper";
+import thumbsUp from "../../assets/thumbs-up.svg";
 
 const CineCard = ({ rec, index = 0, isFirst = false, isLast = false, onCardClick }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -58,6 +59,7 @@ const CineCard = ({ rec, index = 0, isFirst = false, isLast = false, onCardClick
           alt={movie.title}
           className="h-full w-full object-cover rounded-md brightness-90"
           loading="lazy"
+          onError={handleImageError}
         />
 
         {/* Ambient Vignette Gradient */}
@@ -100,6 +102,7 @@ const CineCard = ({ rec, index = 0, isFirst = false, isLast = false, onCardClick
               src={imageUrl}
               alt={movie.title}
               className="h-full w-full object-cover"
+              onError={handleImageError}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#181818] via-transparent to-black/30" />
 
@@ -151,12 +154,13 @@ const CineCard = ({ rec, index = 0, isFirst = false, isLast = false, onCardClick
                 >
                   <span className="text-base font-bold">+</span>
                 </button>
+                {/* Thumbs-up SVG icon instead of LIKE text */}
                 <button
                   onClick={(e) => e.stopPropagation()}
-                  className="flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-full border border-neutral-500 bg-neutral-900/80 text-white hover:border-white transition"
+                  className="flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-full border border-neutral-500 bg-neutral-900/80 hover:border-white transition p-2"
                   title="Like"
                 >
-                  <span className="text-xs font-bold font-sans">LIKE</span>
+                  <img src={thumbsUp} alt="Like" className="w-full h-full invert" />
                 </button>
               </div>
 
@@ -183,7 +187,7 @@ const CineCard = ({ rec, index = 0, isFirst = false, isLast = false, onCardClick
               {movie.year && <span className="text-neutral-300 font-bold">{movie.year}</span>}
               {movie.avg_rating && (
                 <span className="rounded border border-neutral-600 px-1.5 py-0.5 text-xs text-amber-400 font-bold">
-                  Rating {movie.avg_rating}
+                  Rating:{movie.avg_rating}
                 </span>
               )}
               <span className="rounded border border-neutral-700 px-1.5 py-0.5 text-[10px] text-neutral-400 uppercase font-bold">

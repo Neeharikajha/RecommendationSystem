@@ -5,16 +5,13 @@ import { setProfile } from "../../Store/profile";
 import netflixSplashGif from "../../assets/NetFlix Animation copy.gif";
 import user1Img from "../../assets/User1.png";
 import user2Img from "../../assets/User2.png";
-import user3Img from "../../assets/User3.jfif";
-import user4Img from "../../assets/User4.jpg";
 
 const NETFLIX_LOGO = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
 
+// Only 2 algo profiles shown + 1 custom
 const userProfiles = [
   { id: 1, label: "User 1", sublabel: "Algo", image: user1Img },
   { id: 2, label: "User 2", sublabel: "Algo", image: user2Img },
-  { id: 3, label: "User 3", sublabel: "Algo", image: user3Img },
-  { id: 4, label: "User 4", sublabel: "Algo", image: user4Img },
 ];
 
 const Intro = () => {

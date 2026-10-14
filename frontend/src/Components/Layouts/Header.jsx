@@ -60,7 +60,7 @@ const Header = ({ onOpenMetrics, onToggleCustomBuilder, showCustomBuilder }) => 
         </button>
         <Link to="/">
           <img
-            className="w-8 h-8 rounded-sm object-cover cursor-pointer hover:ring-2 hover:ring-red-600 transition"
+            className="w-8 h-8 rounded-sm object-cover cursor-pointer hover:ring-2 hover:ring-red-600 transition invert brightness-200"
             src={accountIcon}
             alt="Profile"
             title="Switch User Profile"

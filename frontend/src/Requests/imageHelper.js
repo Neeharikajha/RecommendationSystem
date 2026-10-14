@@ -1,3 +1,5 @@
+import randomFallback from "../assets/random.jpg";
+
 // Curated aesthetic backdrops from TMDB so every recommendation gets high-res cinematic visuals
 export const POSTER_BACKDROPS = [
   "https://image.tmdb.org/t/p/w780/cn0feYcDvVzVjUDoXa1O8sRgzz.jpg", // Below
@@ -18,12 +20,21 @@ export const POSTER_BACKDROPS = [
   "https://image.tmdb.org/t/p/w780/8YFL5QQVPy3AgrEQxNYVSgiPEbe.jpg",
 ];
 
+// Fallback image when no TMDB image is available
+export const FALLBACK_IMAGE = randomFallback;
+
 // Returns deterministic cinematic image for a given movie title or id
 export const getMovieImage = (movie) => {
-  if (!movie) return POSTER_BACKDROPS[0];
+  if (!movie) return randomFallback;
   const str = movie.title || String(movie.movie_id || 0);
   const hash = [...str].reduce((acc, c) => acc + c.charCodeAt(0), 0);
   return POSTER_BACKDROPS[hash % POSTER_BACKDROPS.length];
+};
+
+// Attach onError fallback to any img element
+export const handleImageError = (e) => {
+  e.target.onerror = null;
+  e.target.src = randomFallback;
 };
 
 // Generates dynamic CineMatch-specific Netflix red tag badge for roughly 1 out of 8 cards
