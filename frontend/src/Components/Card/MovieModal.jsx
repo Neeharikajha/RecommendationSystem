@@ -45,7 +45,7 @@ const MovieModal = ({ rec, onClose }) => {
           className="absolute top-4 right-4 z-30 h-10 w-10 rounded-full bg-[#181818]/80 hover:bg-[#181818] border border-white/20 flex items-center justify-center text-gray-200 hover:text-white transition text-lg"
           aria-label="Close"
         >
-          ✕
+          x
         </button>
 
         {/* Hero Backdrop Banner Image */}
@@ -77,7 +77,6 @@ const MovieModal = ({ rec, onClose }) => {
                 onClick={() => setIsPlaying(!isPlaying)}
                 className="flex items-center gap-2 rounded bg-white px-6 py-2 font-bold text-black hover:bg-neutral-200 transition text-sm md:text-base shadow-lg"
               >
-                <span>{isPlaying ? "⏸" : "▶"}</span>
                 <span>{isPlaying ? "Pause" : "Play"}</span>
               </button>
               <button
@@ -85,7 +84,6 @@ const MovieModal = ({ rec, onClose }) => {
                 disabled={loadingSimilar}
                 className="flex items-center gap-2 rounded bg-[#e50914] hover:bg-red-700 disabled:opacity-50 px-5 py-2 font-bold text-white transition text-sm md:text-base shadow-lg"
               >
-                <span>✨</span>
                 <span>{loadingSimilar ? "Matching..." : "More Like This"}</span>
               </button>
             </div>
@@ -107,7 +105,7 @@ const MovieModal = ({ rec, onClose }) => {
             </span>
             {movie.avg_rating && (
               <span className="text-amber-400 flex items-center gap-1">
-                ★ {movie.avg_rating} <span className="text-xs text-neutral-400">({movie.n_ratings} ratings)</span>
+                Rating {movie.avg_rating} <span className="text-xs text-neutral-400">({movie.n_ratings} ratings)</span>
               </span>
             )}
           </div>
@@ -125,15 +123,12 @@ const MovieModal = ({ rec, onClose }) => {
             ))}
           </div>
 
-          {/* CineMatch ML Why This section */}
+          {/* Recommendation Explanation section */}
           <div className="rounded-xl bg-neutral-900/90 border border-neutral-800 p-5 space-y-4">
             <div className="flex items-start gap-3">
-              <div className="h-8 w-8 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg">
-                💡
-              </div>
               <div className="flex-1">
                 <h4 className="text-sm font-bold text-emerald-400 uppercase tracking-wide">
-                  CineMatch Recommendation Explanation
+                  Recommendation Details
                 </h4>
                 <p className="text-sm text-gray-200 mt-1 leading-relaxed">
                   {why.reason || "Matched via multi-modal hybrid score combining viewing history and film traits."}
@@ -156,10 +151,10 @@ const MovieModal = ({ rec, onClose }) => {
                   <div key={name} className="flex items-center gap-3 text-xs">
                     <span className="w-28 capitalize font-medium text-neutral-300">
                       {name === "collaborative"
-                        ? "👥 Collaborative"
+                        ? "Collaborative"
                         : name === "content"
-                        ? "🎬 Content / Genre"
-                        : "🔥 Popular Acclaim"}
+                        ? "Content / Genre"
+                        : "Popular Acclaim"}
                     </span>
                     <div className="flex-1 h-2 rounded-full bg-neutral-800 overflow-hidden">
                       <div
@@ -186,7 +181,7 @@ const MovieModal = ({ rec, onClose }) => {
           {similar.length > 0 && (
             <div className="pt-4 border-t border-neutral-800 space-y-3">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <span>🍿</span> More Like "{movie.title}":
+                More Like "{movie.title}":
               </h3>
               <div className="flex space-x-3 overflow-x-auto pb-4 no-scrollbar">
                 {similar.map((sRec) => (

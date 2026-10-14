@@ -58,10 +58,10 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>🛠️</span> Build Your Own Taste Profile
+            Build Your Own Taste Profile
           </h2>
           <p className="text-xs text-gray-400 mt-1">
-            Pick movies you like, adjust star ratings, and CineMatch's hybrid model will re-score recommendations in real-time.
+            Pick movies you like, adjust star ratings, and the hybrid model will re-score recommendations in real-time.
           </p>
         </div>
 
@@ -71,7 +71,7 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
             disabled={picked.length === 0}
             className="rounded-lg bg-red-600 hover:bg-red-700 disabled:opacity-50 px-4 py-2 text-xs md:text-sm font-semibold text-white shadow transition flex items-center gap-1.5"
           >
-            <span>✨</span> Generate My Recommendations ({picked.length})
+            Generate My Recommendations ({picked.length})
           </button>
           {picked.length > 0 && (
             <button
@@ -97,8 +97,8 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
           className="w-full rounded-xl bg-neutral-950 border border-neutral-800 px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-red-500 transition"
         />
         {isSearching && (
-          <span className="absolute right-3.5 top-3 text-xs text-gray-400 animate-spin">
-            ⏳
+          <span className="absolute right-3.5 top-3 text-xs text-gray-400">
+            Searching...
           </span>
         )}
 
@@ -139,7 +139,7 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
                 {item.movie.title}
               </span>
               <div className="flex items-center gap-1 bg-neutral-900 rounded px-1.5 py-0.5 border border-neutral-800">
-                <span className="text-amber-400 text-xs">★</span>
+                <span className="text-amber-400 text-xs font-bold">Rating:</span>
                 <input
                   type="number"
                   min="0.5"
@@ -155,7 +155,7 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
                 className="text-gray-400 hover:text-red-400 text-sm ml-1 transition"
                 title="Remove"
               >
-                ✕
+                x
               </button>
             </div>
           ))}

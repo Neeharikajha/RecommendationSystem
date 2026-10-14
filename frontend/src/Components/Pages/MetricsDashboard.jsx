@@ -77,7 +77,6 @@ const MetricsDashboard = ({ onClose }) => {
         <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xl">📊</span>
               <h2 className="text-xl md:text-2xl font-extrabold text-white">
                 Offline Evaluation & Analytics Dashboard
               </h2>
@@ -90,15 +89,15 @@ const MetricsDashboard = ({ onClose }) => {
           </div>
           <button
             onClick={onClose}
-            className="h-9 w-9 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-gray-300 hover:text-white transition"
+            className="h-9 w-9 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center text-gray-300 hover:text-white transition font-bold"
           >
-            ✕
+            x
           </button>
         </div>
 
         {loading ? (
           <div className="py-20 text-center text-gray-400">
-            <span className="animate-spin inline-block mr-2">⏳</span> Loading benchmark report...
+            Loading benchmark report...
           </div>
         ) : error ? (
           <div className="py-12 text-center text-red-400 bg-red-950/20 rounded-xl my-4 border border-red-900/30">
@@ -125,7 +124,7 @@ const MetricsDashboard = ({ onClose }) => {
             {/* Overall Comparison */}
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-1.5">
-                <span>🏆</span> Overall Benchmark Comparison
+                Overall Benchmark Comparison
               </h3>
               {renderTable(metrics.results, "Model")}
             </div>
@@ -134,7 +133,7 @@ const MetricsDashboard = ({ onClose }) => {
             {metrics.segments && (
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-1.5">
-                  <span>👥</span> NDCG by User Activity Segment (Cold vs Warm vs Heavy)
+                  NDCG by User Activity Segment (Cold vs Warm vs Heavy)
                 </h3>
                 {renderTable(
                   Object.fromEntries(
@@ -157,7 +156,7 @@ const MetricsDashboard = ({ onClose }) => {
             {metrics.mmr_tradeoff && (
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-1.5">
-                  <span>⚖️</span> Accuracy vs Diversity Tradeoff (MMR λ Sweeps)
+                  Accuracy vs Diversity Tradeoff (MMR λ Sweeps)
                 </h3>
                 {renderTable(metrics.mmr_tradeoff, "MMR λ")}
               </div>
@@ -166,7 +165,7 @@ const MetricsDashboard = ({ onClose }) => {
             {/* Generated Visual Artifact Plots */}
             <div className="pt-4 border-t border-neutral-800 space-y-3">
               <h3 className="text-base font-bold text-white flex items-center gap-1.5">
-                <span>📈</span> Report Visualizations
+                Report Visualizations
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="rounded-xl border border-neutral-800 overflow-hidden bg-neutral-950 p-2">

@@ -154,9 +154,9 @@ const CineCard = ({ rec, index = 0, isFirst = false, isLast = false, onCardClick
                 <button
                   onClick={(e) => e.stopPropagation()}
                   className="flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-full border border-neutral-500 bg-neutral-900/80 text-white hover:border-white transition"
-                  title="Rate"
+                  title="Like"
                 >
-                  <span className="text-sm">👍</span>
+                  <span className="text-xs font-bold font-sans">LIKE</span>
                 </button>
               </div>
 
@@ -169,7 +169,7 @@ const CineCard = ({ rec, index = 0, isFirst = false, isLast = false, onCardClick
                 className="flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-full border border-neutral-500 bg-neutral-900/80 text-white hover:border-white transition"
                 title="More Info"
               >
-                <span className="text-sm font-bold">∨</span>
+                <span className="text-sm font-bold">v</span>
               </button>
             </div>
 
@@ -183,7 +183,7 @@ const CineCard = ({ rec, index = 0, isFirst = false, isLast = false, onCardClick
               {movie.year && <span className="text-neutral-300 font-bold">{movie.year}</span>}
               {movie.avg_rating && (
                 <span className="rounded border border-neutral-600 px-1.5 py-0.5 text-xs text-amber-400 font-bold">
-                  ★ {movie.avg_rating}
+                  Rating {movie.avg_rating}
                 </span>
               )}
               <span className="rounded border border-neutral-700 px-1.5 py-0.5 text-[10px] text-neutral-400 uppercase font-bold">
@@ -194,7 +194,7 @@ const CineCard = ({ rec, index = 0, isFirst = false, isLast = false, onCardClick
             {/* Why This Explanation Snippet */}
             {explanation?.reason && (
               <p className="text-xs md:text-sm text-emerald-300/90 font-medium line-clamp-1 italic">
-                💡 {explanation.reason}
+                {explanation.reason}
               </p>
             )}
 

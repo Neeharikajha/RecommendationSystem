@@ -4,7 +4,7 @@ import { setProfile } from "../../Store/profile";
 import requests from "../../Requests/request";
 import CineRow from "../Row/CineRow";
 import PlayCard from "../PlayCard/PlayCard";
-import ProfileHeader from "../Layouts/ProfileHeader";
+
 import CustomProfileBuilder from "../Layouts/CustomProfileBuilder";
 import MovieModal from "../Card/MovieModal";
 import { getUserHome, getCustomHome, getMeta } from "../../Requests/backendApi";
@@ -126,17 +126,6 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
       {/* Featured TMDB Billboard Banner */}
       <PlayCard fetchUrl={requests.fetchTrending} />
 
-      {/* CineMatch Taste Profile & Blend HUD */}
-      {profileData && (
-        <ProfileHeader
-          profile={profileData}
-          activeUserId={selectedProfile === "custom" ? null : activeUserId}
-          users={userList}
-          onUserChange={handleUserChange}
-          onRandomUser={handleRandomUser}
-        />
-      )}
-
       {/* Custom Taste Profile Builder Drawer (collapsible or activated via header) */}
       {showCustomBuilder && (
         <CustomProfileBuilder
@@ -150,12 +139,11 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
       {/* Backend Hybrid Engine Recommendation Rows */}
       {loadingBackend ? (
         <div className="py-12 px-6 md:px-12 text-center text-gray-400">
-          <div className="animate-spin text-2xl inline-block mr-2">⚙️</div>
-          <span>Computing CineMatch SVD & Content-based hybrid recommendations...</span>
+          <span>Loading recommendations...</span>
         </div>
       ) : backendError ? (
         <div className="mx-6 md:mx-12 my-4 rounded-xl bg-red-950/30 border border-red-800/40 p-4 text-xs text-red-300">
-          ⚠️ CineMatch Backend: {backendError} (Ensure FastAPI is running on port 8000)
+          Error loading recommendations: {backendError}
         </div>
       ) : (
         <div className="space-y-2">

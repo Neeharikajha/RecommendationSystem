@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import accountIcon from "../../assets/account copy.svg";
 
 const NETFLIX_LOGO = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
-const DEFAULT_AVATAR = "https://upload.wikimedia.org/wikipedia/commons/0/0b/Netflix-avatar.png";
 
 const Header = ({ onOpenMetrics, onToggleCustomBuilder, showCustomBuilder }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -22,51 +22,46 @@ const Header = ({ onOpenMetrics, onToggleCustomBuilder, showCustomBuilder }) => 
       }`}
     >
       <div className="flex items-center space-x-6 md:space-x-8">
-        <Link to="/home" className="flex items-center gap-2">
+        <Link to="/home" className="flex items-center">
           <img className="w-24 md:w-28 object-contain" src={NETFLIX_LOGO} alt="Netflix" />
-          <span className="hidden sm:inline-block rounded bg-red-600/20 border border-red-500/40 text-[10px] uppercase font-black text-red-500 px-1.5 py-0.5 tracking-wider">
-            CineMatch AI
-          </span>
         </Link>
-        <nav className="hidden md:flex space-x-5 text-xs md:text-sm font-medium text-gray-200">
+        <nav className="hidden md:flex space-x-6 text-sm font-medium text-gray-200">
           <Link to="/home" className="hover:text-white transition">Home</Link>
           <button
             onClick={onToggleCustomBuilder}
-            className={`transition flex items-center gap-1.5 ${
-              showCustomBuilder ? "text-red-400 font-bold" : "hover:text-white text-gray-300"
+            className={`transition ${
+              showCustomBuilder ? "text-red-500 font-bold" : "hover:text-white text-gray-300"
             }`}
           >
-            <span>🛠️</span> Build Taste Profile
+            Build Profile
           </button>
           <button
             onClick={onOpenMetrics}
-            className="hover:text-white text-gray-300 transition flex items-center gap-1.5"
+            className="hover:text-white text-gray-300 transition"
           >
-            <span>📊</span> Model Analytics
+            Analytics
           </button>
         </nav>
       </div>
 
-      <div className="flex items-center space-x-3 md:space-x-4">
+      <div className="flex items-center space-x-4">
         {/* Mobile quick action buttons */}
         <button
           onClick={onToggleCustomBuilder}
           className="md:hidden rounded-lg bg-neutral-800 border border-neutral-700 px-2.5 py-1 text-xs text-gray-200"
-          title="Build Taste Profile"
         >
-          🛠️
+          Build
         </button>
         <button
           onClick={onOpenMetrics}
           className="md:hidden rounded-lg bg-neutral-800 border border-neutral-700 px-2.5 py-1 text-xs text-gray-200"
-          title="Analytics"
         >
-          📊
+          Analytics
         </button>
         <Link to="/">
           <img
             className="w-8 h-8 rounded-sm object-cover cursor-pointer hover:ring-2 hover:ring-red-600 transition"
-            src={DEFAULT_AVATAR}
+            src={accountIcon}
             alt="Profile"
             title="Switch User Profile"
           />

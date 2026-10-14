@@ -54,7 +54,7 @@ const PlayCard = ({ fetchUrl }) => {
 
   if (loading) {
     return (
-      <div className="h-[55vh] md:h-[75vh] w-full bg-gray-900 animate-pulse">
+      <div className="h-[80vh] w-full bg-gray-900 animate-pulse">
         <SkeletonTheme baseColor="#202020" highlightColor="#444">
           <Skeleton height="100%" />
         </SkeletonTheme>
@@ -63,7 +63,7 @@ const PlayCard = ({ fetchUrl }) => {
   }
 
   return (
-    <div className="relative h-[55vh] md:h-[75vh] w-full text-white">
+    <div className="relative h-[80vh] w-full text-white">
       {/* Background Poster Image */}
       <div className="absolute inset-0">
         <img
