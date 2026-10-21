@@ -25,11 +25,25 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
   useEffect(() => {
     if (selectedProfile === "custom") {
       setShowCustomBuilder(true);
-      // Fetch empty cold-start home
+      // Fetch empty cold-start home for custom profile
       fetchCustomHome([]);
+    } else if (selectedProfile === "new") {
+      // "New" profile - fetch cold-start recommendations (empty ratings, no builder shown)
+      setShowCustomBuilder(false);
+      fetchCustomHome([]);
+    } else if (selectedProfile === "neeharika") {
+      // Neeharika profile maps to user ID 1
+      setActiveUserId(1);
+      setShowCustomBuilder(false);
+      fetchUserData(1);
     } else {
-      const uId = typeof selectedProfile === "number" ? selectedProfile : parseInt(selectedProfile?.replace?.(/\D/g, "") || "1", 10) || 1;
+      // Numeric user ID (for future compatibility)
+      const uId =
+        typeof selectedProfile === "number"
+          ? selectedProfile
+          : parseInt(selectedProfile, 10) || 1;
       setActiveUserId(uId);
+      setShowCustomBuilder(false);
       fetchUserData(uId);
     }
   }, [selectedProfile]);
@@ -58,22 +72,26 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
 
       // Strict cross-row deduplication: once a movie is placed in a row, never repeat it in another row
       const seenIds = new Set();
-      const dedupedRows = (data.rows || []).map((row) => {
-        const uniqueItems = [];
-        for (const item of row.items || []) {
-          const mId = item.movie?.movie_id || item.movie_id;
-          if (!seenIds.has(mId)) {
-            seenIds.add(mId);
-            uniqueItems.push(item);
+      const dedupedRows = (data.rows || [])
+        .map((row) => {
+          const uniqueItems = [];
+          for (const item of row.items || []) {
+            const mId = item.movie?.movie_id || item.movie_id;
+            if (!seenIds.has(mId)) {
+              seenIds.add(mId);
+              uniqueItems.push(item);
+            }
           }
-        }
-        return { ...row, items: uniqueItems };
-      }).filter((row) => row.items.length > 0);
+          return { ...row, items: uniqueItems };
+        })
+        .filter((row) => row.items.length > 0);
 
       setBackendRows(dedupedRows);
     } catch (err) {
       console.error("Backend fetch error:", err);
-      setBackendError(err.message || "Failed to connect to recommendation backend.");
+      setBackendError(
+        err.message || "Failed to connect to recommendation backend.",
+      );
     } finally {
       setLoadingBackend(false);
     }
@@ -88,17 +106,19 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
 
       // Strict cross-row deduplication for custom profiles
       const seenIds = new Set();
-      const dedupedRows = (data.rows || []).map((row) => {
-        const uniqueItems = [];
-        for (const item of row.items || []) {
-          const mId = item.movie?.movie_id || item.movie_id;
-          if (!seenIds.has(mId)) {
-            seenIds.add(mId);
-            uniqueItems.push(item);
+      const dedupedRows = (data.rows || [])
+        .map((row) => {
+          const uniqueItems = [];
+          for (const item of row.items || []) {
+            const mId = item.movie?.movie_id || item.movie_id;
+            if (!seenIds.has(mId)) {
+              seenIds.add(mId);
+              uniqueItems.push(item);
+            }
           }
-        }
-        return { ...row, items: uniqueItems };
-      }).filter((row) => row.items.length > 0);
+          return { ...row, items: uniqueItems };
+        })
+        .filter((row) => row.items.length > 0);
 
       setBackendRows(dedupedRows);
     } catch (err) {
@@ -138,11 +158,11 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
 
       {/* Backend Hybrid Engine Recommendation Rows */}
       {loadingBackend ? (
-        <div className="py-12 px-6 md:px-12 text-center text-gray-400">
+        <div className="px-6 py-12 text-center text-gray-400 md:px-12">
           <span>Loading recommendations...</span>
         </div>
       ) : backendError ? (
-        <div className="mx-6 md:mx-12 my-4 rounded-xl bg-red-950/30 border border-red-800/40 p-4 text-xs text-red-300">
+        <div className="mx-6 my-4 rounded-xl border border-red-800/40 bg-red-950/30 p-4 text-xs text-red-300 md:mx-12">
           Error loading recommendations: {backendError}
         </div>
       ) : (
@@ -157,8 +177,6 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
           ))}
         </div>
       )}
-
-
 
       {/* Modal with Why This explanation, Signals & More Like This */}
       {activeModalRec && (

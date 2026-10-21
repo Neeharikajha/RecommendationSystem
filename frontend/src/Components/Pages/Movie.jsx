@@ -16,14 +16,26 @@ const Movie = () => {
   const [playButton, setPlayButton] = useState(3);
   const [trailerURL, setTrailerURL] = useState("");
 
+  // ESC key to close trailer
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape" && trailerURL) {
+        setTrailerURL("");
+      }
+    };
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [trailerURL]);
+
   if (playButton % 3 == 1) {
     setTimeout(() => {
       setPlayButton(playButton + 1);
     }, 3500);
   }
+
   const opts = {
-    height: "200",
-    width: "100%",
+    height: window.innerHeight,
+    width: window.innerWidth,
     playerVars: {
       autoplay: 1,
     },
@@ -36,9 +48,13 @@ const Movie = () => {
       movieTrailer(movie?.original_title || movie?.title || movie?.name || "")
         .then((url) => {
           const urlParams = new URLSearchParams(new URL(url).search);
-          setTrailerURL(urlParams.get("v"));
+          const videoId = urlParams.get("v");
+          setTrailerURL(videoId);
         })
-        .catch((error) => console.log(error));
+        .catch((error) => {
+          console.error("Trailer fetch error:", error);
+          alert("Could not find trailer for this movie. Please try another.");
+        });
     }
   };
 
@@ -50,7 +66,7 @@ const Movie = () => {
   useEffect(() => {
     async function MovieFetcher() {
       const response = await fetch(
-        `https://api.themoviedb.org/3/movie/${id}?api_key=4e44d9029b1270a757cddc766a1bcb63&language=en-US`
+        `https://api.themoviedb.org/3/movie/${id}?api_key=4e44d9029b1270a757cddc766a1bcb63&language=en-US`,
       );
       const MovieData = await response.json();
       setMovie(MovieData);
@@ -65,7 +81,7 @@ const Movie = () => {
   const setId = (payload) => {
     async function MovieFetcher() {
       const response = await fetch(
-        `https://api.themoviedb.org/3${payload}?api_key=4e44d9029b1270a757cddc766a1bcb63&language=en-US`
+        `https://api.themoviedb.org/3${payload}?api_key=4e44d9029b1270a757cddc766a1bcb63&language=en-US`,
       );
       const data = await response.json();
       dispatch(addId(data));
@@ -150,7 +166,19 @@ const Movie = () => {
           : " "}
       </button>
 
-      {trailerURL && <YouTube videoId={trailerURL} opts={opts} />}
+      {trailerURL && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+          <button
+            onClick={() => setTrailerURL("")}
+            className="absolute right-6 top-6 z-[60] flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/30 bg-[#e50914] text-3xl font-bold text-white shadow-lg transition hover:border-white hover:bg-red-700"
+            aria-label="Close trailer (ESC)"
+            title="Close Trailer - Press ESC"
+          >
+            ✕
+          </button>
+          <YouTube videoId={trailerURL} opts={opts} />
+        </div>
+      )}
       <h1 className="ml-5 mt-2  text-2xl font-bold md:absolute  md:left-[25.3rem] md:top-[41.5rem] md:text-3xl">
         {movie.original_title}
       </h1>

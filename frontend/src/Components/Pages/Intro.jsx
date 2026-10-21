@@ -5,13 +5,34 @@ import { setProfile } from "../../Store/profile";
 import netflixSplashGif from "../../assets/NetFlix Animation copy.gif";
 import user1Img from "../../assets/User1.png";
 import user2Img from "../../assets/User2.png";
+import user3Img from "../../assets/User3.jfif";
 
-const NETFLIX_LOGO = "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
+const NETFLIX_LOGO =
+  "https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg";
 
-// Only 2 algo profiles shown + 1 custom
+// Three distinct profile types
 const userProfiles = [
-  { id: 1, label: "User 1", sublabel: "Algo", image: user1Img },
-  { id: 2, label: "User 2", sublabel: "Algo", image: user2Img },
+  {
+    id: "neeharika",
+    label: "Neeharika",
+    sublabel: "Your Profile",
+    image: user1Img,
+    description: "Personalized recommendations based on watch history",
+  },
+  {
+    id: "new",
+    label: "New",
+    sublabel: "Fresh Start",
+    image: user2Img,
+    description: "New user - discover without assumptions",
+  },
+  {
+    id: "custom",
+    label: "Custom",
+    sublabel: "Build Your Taste",
+    image: user3Img,
+    description: "Rate movies to get personalized picks",
+  },
 ];
 
 const Intro = () => {
@@ -27,8 +48,18 @@ const Intro = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleSelectProfile = (userId) => {
-    dispatch(setProfile(userId));
+  const handleSelectProfile = (profileId) => {
+    // Map new profile names to backend user IDs for cold-start logic
+    let backendId = profileId;
+    if (profileId === "neeharika") {
+      backendId = 1; // Existing established user
+    } else if (profileId === "new") {
+      backendId = "new"; // Trigger cold-start recommendations
+    } else if (profileId === "custom") {
+      backendId = "custom"; // Trigger custom profile builder
+    }
+
+    dispatch(setProfile(backendId));
     navigate("/home");
   };
 
@@ -36,7 +67,7 @@ const Intro = () => {
     /* Screen 1: Netflix Animated Splash Screen */
     <div className="grid h-screen place-items-center bg-black">
       <img
-        className="w-80 md:w-[32rem] object-contain"
+        className="w-80 object-contain md:w-[32rem]"
         src={netflixSplashGif}
         alt="Netflix Animation"
       />
@@ -44,7 +75,7 @@ const Intro = () => {
   ) : (
     /* Screen 2: Who's Watching Profile Picker */
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#141414] px-6 text-center">
-      <div className="flex items-center mb-8">
+      <div className="mb-8 flex items-center">
         <img className="w-32 md:w-44" src={NETFLIX_LOGO} alt="Netflix" />
       </div>
 
@@ -57,39 +88,27 @@ const Intro = () => {
           <div
             key={user.id}
             onClick={() => handleSelectProfile(user.id)}
-            className="group flex flex-col items-center cursor-pointer"
+            className="group flex cursor-pointer flex-col items-center"
+            title={user.description}
           >
-            <div className="w-24 h-24 md:w-36 md:h-36 overflow-hidden rounded-md border-2 border-transparent transition-all duration-200 group-hover:border-white group-hover:scale-105 shadow-xl">
+            <div className="h-24 w-24 overflow-hidden rounded-md border-2 border-transparent shadow-xl transition-all duration-200 group-hover:scale-105 group-hover:border-[#e50914] md:h-36 md:w-36">
               <img
                 src={user.image}
                 alt={user.label}
                 className="h-full w-full object-cover"
               />
             </div>
-            <p className="mt-3 text-sm font-semibold text-gray-400 group-hover:text-white transition">
+            <p className="mt-3 text-sm font-semibold text-gray-400 transition group-hover:text-white">
               {user.label}
             </p>
-            <span className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 group-hover:text-gray-300">
               {user.sublabel}
+            </span>
+            <span className="mt-2 max-w-[100px] text-[9px] text-gray-600 group-hover:text-gray-400">
+              {user.description}
             </span>
           </div>
         ))}
-
-        {/* Custom / Add Profile Slot with + sign */}
-        <div
-          onClick={() => handleSelectProfile("custom")}
-          className="group flex flex-col items-center cursor-pointer"
-        >
-          <div className="flex w-24 h-24 md:w-36 md:h-36 items-center justify-center rounded-md border-2 border-dashed border-gray-600 bg-[#1c1c1c] text-4xl font-light text-gray-400 transition-all duration-200 group-hover:border-red-500 group-hover:text-white group-hover:scale-105">
-            +
-          </div>
-          <p className="mt-3 text-sm font-semibold text-gray-400 group-hover:text-white transition">
-            Add Profile
-          </p>
-          <span className="text-[11px] text-gray-500 uppercase tracking-wider font-semibold">
-            Custom
-          </span>
-        </div>
       </div>
     </div>
   );
