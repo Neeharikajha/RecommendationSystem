@@ -45,11 +45,23 @@ const Movie = () => {
     if (trailerURL) {
       setTrailerURL("");
     } else {
+      setPlayButton(playButton + 1); // Show loading state
       movieTrailer(movie?.original_title || movie?.title || movie?.name || "")
         .then((url) => {
-          const urlParams = new URLSearchParams(new URL(url).search);
-          const videoId = urlParams.get("v");
-          setTrailerURL(videoId);
+          console.log("Trailer URL found:", url);
+          try {
+            const urlParams = new URLSearchParams(new URL(url).search);
+            const videoId = urlParams.get("v");
+            console.log("Extracted video ID:", videoId);
+            if (videoId) {
+              setTrailerURL(videoId);
+            } else {
+              throw new Error("Could not extract video ID from trailer URL");
+            }
+          } catch (error) {
+            console.error("Failed to parse trailer URL:", error);
+            alert("Could not find trailer for this movie. Please try another.");
+          }
         })
         .catch((error) => {
           console.error("Trailer fetch error:", error);
@@ -167,7 +179,7 @@ const Movie = () => {
       </button>
 
       {trailerURL && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden bg-black">
           <button
             onClick={() => setTrailerURL("")}
             className="absolute right-6 top-6 z-[60] flex h-14 w-14 items-center justify-center rounded-full border-2 border-white/30 bg-[#e50914] text-3xl font-bold text-white shadow-lg transition hover:border-white hover:bg-red-700"
@@ -176,7 +188,9 @@ const Movie = () => {
           >
             ✕
           </button>
-          <YouTube videoId={trailerURL} opts={opts} />
+          <div className="relative flex h-full w-full items-center justify-center">
+            <YouTube videoId={trailerURL} opts={opts} />
+          </div>
         </div>
       )}
       <h1 className="ml-5 mt-2  text-2xl font-bold md:absolute  md:left-[25.3rem] md:top-[41.5rem] md:text-3xl">
