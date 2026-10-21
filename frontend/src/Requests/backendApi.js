@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://127.0.0.1:8000/api";
+const BACKEND_URL = "https://recommendationsystem-s0gt.onrender.com";
 
 const api = axios.create({
   baseURL: BACKEND_URL,
