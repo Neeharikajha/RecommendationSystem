@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BACKEND_URL = "https://recommendationsystem-s0gt.onrender.com";
+const BACKEND_URL = "https://recommendationsystem-s0gt.onrender.com/api";
 
 const api = axios.create({
   baseURL: BACKEND_URL,
@@ -23,7 +23,9 @@ export const getCustomHome = async (ratings, k = 10) => {
 };
 
 export const searchMovies = async (query, limit = 8) => {
-  const res = await api.get(`/movies/search?q=${encodeURIComponent(query)}&limit=${limit}`);
+  const res = await api.get(
+    `/movies/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+  );
   return res.data;
 };
 
