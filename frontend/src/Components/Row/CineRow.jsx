@@ -61,12 +61,12 @@ const CineRow = ({ title, items = [], onCardClick }) => {
         <div
           ref={scrollRef}
           onScroll={checkScroll}
-          className="no-scrollbar flex gap-4 overflow-x-auto scroll-smooth py-3 px-1"
+          className="no-scrollbar flex gap-4 overflow-x-auto overflow-y-visible scroll-smooth py-12 px-2"
         >
           {items.map((rec, index) => (
             <div
               key={rec.movie?.movie_id || rec.movie_id}
-              className="w-56 flex-shrink-0 sm:w-64 md:w-72"
+              className="w-56 flex-shrink-0 sm:w-64 md:w-72 overflow-visible"
             >
               <CineCard
                 rec={rec}

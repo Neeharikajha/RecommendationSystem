@@ -27,26 +27,42 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
 
   const handleSelectMovie = (movie) => {
     if (!picked.some((p) => p.movie.movie_id === movie.movie_id)) {
-      setPicked([...picked, { movie, rating: 5 }]);
+      const nextPicked = [...picked, { movie, rating: 5 }];
+      setPicked(nextPicked);
+      // Trigger real-time recommendations update immediately
+      const ratingsPayload = nextPicked.map(({ movie, rating }) => ({
+        movie_id: movie.movie_id,
+        rating,
+      }));
+      onApplyProfile(ratingsPayload);
     }
     setQuery("");
     setSearchResults([]);
   };
 
   const handleUpdateRating = (movieId, newRating) => {
-    setPicked(
-      picked.map((item) =>
-        item.movie.movie_id === movieId ? { ...item, rating: Number(newRating) } : item
-      )
+    const updated = picked.map((item) =>
+      item.movie.movie_id === movieId ? { ...item, rating: Number(newRating) } : item
     );
+    setPicked(updated);
+    const ratingsPayload = updated.map(({ movie, rating }) => ({
+      movie_id: movie.movie_id,
+      rating,
+    }));
+    onApplyProfile(ratingsPayload);
   };
 
   const handleRemoveMovie = (movieId) => {
-    setPicked(picked.filter((item) => item.movie.movie_id !== movieId));
+    const remaining = picked.filter((item) => item.movie.movie_id !== movieId);
+    setPicked(remaining);
+    const ratingsPayload = remaining.map(({ movie, rating }) => ({
+      movie_id: movie.movie_id,
+      rating,
+    }));
+    onApplyProfile(ratingsPayload);
   };
 
   const handleRecommend = () => {
-    if (picked.length === 0) return;
     const ratingsPayload = picked.map(({ movie, rating }) => ({
       movie_id: movie.movie_id,
       rating,
@@ -162,15 +178,35 @@ const CustomProfileBuilder = ({ onApplyProfile, onReset }) => {
                 className="text-gray-400 hover:text-red-400 text-base ml-1 transition font-bold"
                 title="Remove"
               >
-                x
+                ✕
               </button>
             </div>
           ))}
         </div>
       ) : (
-        <p className="mt-3 text-xs text-gray-500 italic">
-          Tip: Add 2-3 movies to unlock personalized collaborative and content-based recommendations!
-        </p>
+        <div className="mt-4 space-y-2 border-t border-neutral-800 pt-3">
+          <p className="text-xs text-neutral-400">
+            Quick start — click any title you like to instantly generate personalized recommendations:
+          </p>
+          <div className="flex flex-wrap gap-2 pt-1">
+            {[
+              { movie_id: 296, title: "Pulp Fiction", genres: ["Crime", "Drama"] },
+              { movie_id: 2571, title: "The Matrix", genres: ["Action", "Sci-Fi"] },
+              { movie_id: 318, title: "The Shawshank Redemption", genres: ["Drama"] },
+              { movie_id: 1, title: "Toy Story", genres: ["Animation", "Children"] },
+              { movie_id: 58559, title: "The Dark Knight", genres: ["Action", "Crime"] },
+              { movie_id: 79132, title: "Inception", genres: ["Action", "Sci-Fi"] },
+            ].map((starter) => (
+              <button
+                key={starter.movie_id}
+                onClick={() => handleSelectMovie(starter)}
+                className="rounded-full border border-neutral-700 bg-neutral-900/80 px-3 py-1 text-xs font-medium text-gray-300 hover:border-red-500 hover:bg-neutral-800 hover:text-white transition shadow-sm"
+              >
+                + {starter.title}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );

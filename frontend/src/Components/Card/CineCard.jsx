@@ -68,12 +68,12 @@ const CineCard = ({
   // Determine horizontal alignment of the expanded card so it stays in viewport
   const getPopoverPositionClasses = () => {
     if (isFirst) {
-      return "left-0 -top-16 origin-left";
+      return "left-0 -top-8 origin-left";
     }
     if (isLast) {
-      return "right-0 -top-16 origin-right";
+      return "right-0 -top-8 origin-right";
     }
-    return "left-1/2 -translate-x-1/2 -top-16 origin-center";
+    return "left-1/2 -translate-x-1/2 -top-8 origin-center";
   };
 
   return (
@@ -86,11 +86,9 @@ const CineCard = ({
         isHovered ? "z-[100]" : "z-[1]"
       }`}
     >
-      {/* Base Card: Dimensions and text increased by 8-12% */}
+      {/* Base Card */}
       <div
-        className={`relative h-40 w-full overflow-hidden rounded-md bg-[#181818] shadow-md transition-all duration-300 md:h-44 ${
-          isHovered ? "pointer-events-none opacity-0" : "opacity-100"
-        }`}
+        className="relative h-40 w-full overflow-hidden rounded-md bg-[#181818] shadow-md transition-all duration-300 md:h-44"
       >
         <img
           ref={imgRef}
@@ -109,7 +107,7 @@ const CineCard = ({
         {/* Ambient Vignette Gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-        {/* Center Title - Increased font size by 10-12% */}
+        {/* Center Title */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-3 text-center">
           <h3 className="line-clamp-2 px-2 text-lg font-black uppercase leading-tight tracking-wide text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.95)] md:text-xl">
             {movie.title}
@@ -135,10 +133,10 @@ const CineCard = ({
         )}
       </div>
 
-      {/* Expanded Hover Popover: Increased by > 40% & strictly placed over left and right cards */}
+      {/* Expanded Hover Popover */}
       {isHovered && (
         <div
-          className={`absolute ${getPopoverPositionClasses()} animate-in fade-in zoom-in-95 pointer-events-auto z-[100] w-[23rem] transform overflow-hidden rounded-xl border border-neutral-700/80 bg-[#181818] shadow-[0_20px_45px_rgba(0,0,0,0.95)] transition-all duration-200 sm:w-[25rem] md:w-[27rem]`}
+          className={`absolute ${getPopoverPositionClasses()} animate-in fade-in zoom-in-95 pointer-events-auto z-[100] w-[20rem] sm:w-[22rem] md:w-[24rem] transform overflow-hidden rounded-xl border border-neutral-700/80 bg-[#181818] shadow-[0_25px_50px_rgba(0,0,0,0.98)] transition-all duration-200`}
         >
           {/* Expanded Preview Image - Sized 40% larger */}
           <div className="md:h-54 relative h-48 w-full overflow-hidden bg-neutral-900">

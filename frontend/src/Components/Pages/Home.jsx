@@ -25,7 +25,7 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
   useEffect(() => {
     if (selectedProfile === "custom") {
       setShowCustomBuilder(true);
-      // Fetch empty cold-start home for custom profile
+      // Fetch empty cold-start home for custom profile (popularity & genre based, no user 1 assumptions)
       fetchCustomHome([]);
     } else if (selectedProfile === "new") {
       // "New" profile - fetch cold-start recommendations (empty ratings, no builder shown)
