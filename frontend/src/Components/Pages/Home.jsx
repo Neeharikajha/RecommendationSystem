@@ -10,7 +10,7 @@ import MovieModal from "../Card/MovieModal";
 import { getUserHome, getCustomHome, getMeta } from "../../Requests/backendApi";
 
 const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
-  const selectedProfile = useSelector((state) => state.profile);
+  const selectedProfile = useSelector((state) => state.ProfileData || state.profile);
   const dispatch = useDispatch();
 
   const [activeUserId, setActiveUserId] = useState(1);
@@ -129,7 +129,31 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
     }
   };
 
+  const [sessionLikes, setSessionLikes] = useState([]);
+
+  // Handle dynamic likes/clicks to re-rank recommendations on the fly
+  const handleMovieInteraction = async (movie, rating = 5) => {
+    if (!movie?.movie_id) return;
+    const movieId = movie.movie_id;
+    
+    // Add to session likes without duplicate
+    const updatedLikes = [
+      ...sessionLikes.filter((item) => item.movie_id !== movieId),
+      { movie_id: movieId, rating },
+    ];
+    setSessionLikes(updatedLikes);
+
+    if (selectedProfile === "new" || selectedProfile === "custom") {
+      // Immediately re-score recommendations based on clicked/liked movies
+      await fetchCustomHome(updatedLikes);
+    } else if (selectedProfile === "neeharika") {
+      // For Neeharika, fetch updated hybrid profile
+      await fetchUserData(1);
+    }
+  };
+
   const handleUserChange = (newUserId) => {
+    setSessionLikes([]);
     setActiveUserId(newUserId);
     dispatch(setProfile(newUserId));
     fetchUserData(newUserId);
@@ -173,6 +197,7 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
               title={row.title}
               items={row.items}
               onCardClick={(rec) => setActiveModalRec(rec)}
+              onLike={(movie) => handleMovieInteraction(movie, 5)}
             />
           ))}
         </div>

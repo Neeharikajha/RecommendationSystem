@@ -1,7 +1,7 @@
 import React, { useRef, useState, useCallback, useMemo } from "react";
 import CineCard from "../Card/CineCard";
 
-const CineRow = ({ title, items = [], onCardClick }) => {
+const CineRow = ({ title, items = [], onCardClick, onLike }) => {
   if (!items || items.length === 0) return null;
 
   const scrollRef = useRef(null);
@@ -74,6 +74,7 @@ const CineRow = ({ title, items = [], onCardClick }) => {
                 isFirst={index === 0}
                 isLast={index === items.length - 1}
                 onCardClick={handleCardClick}
+                onLike={onLike}
               />
             </div>
           ))}

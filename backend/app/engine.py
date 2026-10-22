@@ -124,34 +124,72 @@ class Engine:
             for i in items
         ]
 
+    def recent_releases(
+        self, profile: Profile, k: int = 10, *, exclude: Iterable[int] | None = None
+    ) -> list[s.Recommendation]:
+        """Fetch highest rated modern releases (year >= 2010 or newest available)."""
+        years = np.array([c.year if c.year is not None else 0 for c in self._cards])
+        scores = self.hybrid.popularity.score(profile)
+        # Prioritize recent releases by combining year score with rating
+        recent_bonus = np.where(years >= 2010, 1.0, np.where(years >= 2000, 0.5, 0.0))
+        combined = scores + recent_bonus * 2.0
+        mask = self.eligible.copy()
+        mask[profile.items] = False
+        if exclude is not None:
+            mask[list(exclude)] = False
+        # Filter to at least year 2000 if available
+        mask &= (years >= 2000)
+        items = top_k(combined, mask, k)
+        return [
+            s.Recommendation(
+                movie=self._cards[i],
+                score=round(float(np.clip(scores[i] / 5.0, 0, 1)), 3),
+                explanation=s.Explanation(
+                    reason="Recent release with outstanding viewer reception",
+                    because=None,
+                    shared_genres=[],
+                    signals={"popularity": round(float(np.clip(scores[i] / 5.0, 0, 1)), 3)},
+                ),
+            )
+            for i in items
+        ]
+
     def home(self, profile: Profile, k: int = 10) -> s.HomeResponse:
         cold = not len(profile)
         rows: list[s.Row] = []
         seen: set[int] = set(profile.items)
 
-        # 1. Primary Hybrid Personalised Picks (or Popular Right Now if cold)
-        top_picks = self.recommend(profile, k, exclude=seen)
-        if top_picks:
-            rows.append(s.Row(title="Popular Right Now" if cold else "Top Picks for You", items=top_picks))
-            seen.update(self._item(r.movie.movie_id) for r in top_picks)
+        # 1. Primary Picks (Trending Now if cold, or Personalized Top Picks)
+        if cold:
+            trending = self.popular_picks(profile, k, exclude=seen)
+            if trending:
+                rows.append(s.Row(title="Trending Now · Global Acclaim", items=trending))
+                seen.update(self._item(r.movie.movie_id) for r in trending)
 
-        # 2. Trending & Highly Rated Row (Popularity model priority, strictly deduplicated)
-        pop_picks = self.popular_picks(profile, k, exclude=seen)
-        if pop_picks:
-            rows.append(s.Row(title="Trending Now · Global Acclaim", items=pop_picks))
-            seen.update(self._item(r.movie.movie_id) for r in pop_picks)
+            # 2. Modern and Recent Releases
+            recent = self.recent_releases(profile, k, exclude=seen)
+            if recent:
+                rows.append(s.Row(title="Newly Added & Modern Hits", items=recent))
+                seen.update(self._item(r.movie.movie_id) for r in recent)
+        else:
+            top_picks = self.recommend(profile, k, exclude=seen)
+            if top_picks:
+                rows.append(s.Row(title="Top Picks for You", items=top_picks))
+                seen.update(self._item(r.movie.movie_id) for r in top_picks)
 
-        if not cold:
+            pop_picks = self.popular_picks(profile, k, exclude=seen)
+            if pop_picks:
+                rows.append(s.Row(title="Trending Now · Global Acclaim", items=pop_picks))
+                seen.update(self._item(r.movie.movie_id) for r in pop_picks)
+
             # Sort user liked items by rating desc
             liked_order = np.argsort(-profile.ratings, kind="stable")
-            # Anchor 1: highest rated
             best1 = int(profile.items[liked_order[0]])
             sim1 = self._similar(best1, k, exclude=seen)
             if sim1:
                 rows.append(s.Row(title=f"Because you watched {self._cards[best1].title}", items=sim1))
                 seen.update(self._item(r.movie.movie_id) for r in sim1)
 
-            # Anchor 2 (if user has another high rated movie with different genres)
             if len(liked_order) > 1:
                 best2 = int(profile.items[liked_order[1]])
                 if best2 != best1:
@@ -160,11 +198,13 @@ class Engine:
                         rows.append(s.Row(title=f"More Like {self._cards[best2].title}", items=sim2))
                         seen.update(self._item(r.movie.movie_id) for r in sim2)
 
-        # 3. Dynamic genre-specific hybrid picks (top 3 favourite genres, strictly deduplicated)
-        for genre in self._favourite_genres(profile, 3):
+        # 3. Diverse Genre Showcases (Action, Comedy, Romance, Sci-Fi, Crime)
+        genres_to_show = self._favourite_genres(profile, 4) if not cold else ["Action", "Comedy", "Romance", "Sci-Fi", "Crime"]
+        for genre in genres_to_show:
             genre_recs = self.recommend(profile, k, genre=genre, exclude=seen)
             if genre_recs:
-                rows.append(s.Row(title=f"Top {genre} Hits For You", items=genre_recs))
+                row_title = f"Top {genre} Hits For You" if not cold else f"Top {genre} Spotlight"
+                rows.append(s.Row(title=row_title, items=genre_recs))
                 seen.update(self._item(r.movie.movie_id) for r in genre_recs)
 
         return s.HomeResponse(profile=self._summarise(profile), rows=rows)

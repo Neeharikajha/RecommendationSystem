@@ -15,9 +15,11 @@ const CineCard = ({
   isFirst = false,
   isLast = false,
   onCardClick,
+  onLike,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isLiked, setIsLiked] = useState(false);
   const hoverTimeoutRef = useRef(null);
   const imgRef = useRef(null);
 
@@ -197,16 +199,24 @@ const CineCard = ({
                 >
                   <span className="text-base font-bold">+</span>
                 </button>
-                {/* Thumbs-up SVG icon instead of LIKE text */}
+                {/* Thumbs-up SVG icon with dynamic liked feedback */}
                 <button
-                  onClick={(e) => e.stopPropagation()}
-                  className="flex h-9 w-9 items-center justify-center rounded-full border border-neutral-500 bg-neutral-900/80 p-2 transition hover:border-white md:h-10 md:w-10"
-                  title="Like"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsLiked((prev) => !prev);
+                    onLike && onLike(movie);
+                  }}
+                  className={`flex h-9 w-9 items-center justify-center rounded-full border p-2 transition md:h-10 md:w-10 ${
+                    isLiked
+                      ? "border-red-500 bg-red-600 text-white"
+                      : "border-neutral-500 bg-neutral-900/80 hover:border-white"
+                  }`}
+                  title={isLiked ? "Liked!" : "Like"}
                 >
                   <img
                     src={thumbsUp}
                     alt="Like"
-                    className="h-full w-full invert"
+                    className={`h-full w-full ${isLiked ? "" : "invert"}`}
                   />
                 </button>
               </div>
