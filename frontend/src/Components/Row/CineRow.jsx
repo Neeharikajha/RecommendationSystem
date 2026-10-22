@@ -4,12 +4,17 @@ import CineCard from "../Card/CineCard";
 const CineRow = ({ title, items = [], onCardClick }) => {
   if (!items || items.length === 0) return null;
 
-  // Show first 5 in grid, remaining 5 in horizontal scroll strip
-  const topItems = useMemo(() => items.slice(0, 5), [items]);
-  const moreItems = useMemo(() => items.slice(5, 10), [items]);
-
   const scrollRef = useRef(null);
-  const [showMore, setShowMore] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScroll = useCallback(() => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 10);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  }, []);
 
   const handleCardClick = useCallback(
     (rec) => {
@@ -18,69 +23,73 @@ const CineRow = ({ title, items = [], onCardClick }) => {
     [onCardClick],
   );
 
-  const toggleMore = useCallback(() => {
-    setShowMore((v) => !v);
-  }, []);
+  const handleScroll = (direction) => {
+    if (scrollRef.current) {
+      const { clientWidth } = scrollRef.current;
+      const scrollAmount = direction === "left" ? -clientWidth * 0.75 : clientWidth * 0.75;
+      scrollRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    }
+  };
 
   return (
-    <div className="relative space-y-3 overflow-visible px-6 py-4 md:px-12">
+    <div className="group relative space-y-3 overflow-visible px-6 py-4 md:px-12">
       {/* Row Header */}
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-lg font-bold tracking-wide text-white md:text-xl">
           <span className="inline-block h-4 w-1 rounded-full bg-[#e50914]" />
           {title}
         </h2>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-neutral-400">
-            Top {topItems.length + moreItems.length} curated
-          </span>
-          {moreItems.length > 0 && (
-            <button
-              onClick={toggleMore}
-              className="text-xs font-semibold text-red-500 underline underline-offset-2 transition hover:text-red-400"
-            >
-              {showMore ? "Show Less" : `+${moreItems.length} More`}
-            </button>
-          )}
-        </div>
+        <span className="text-xs font-medium text-neutral-400">
+          {items.length} curated picks
+        </span>
       </div>
 
-      {/* Top 5 Non-scrolling Row Grid */}
-      <div className="grid grid-cols-2 gap-3.5 overflow-visible py-2 sm:grid-cols-3 sm:gap-4 md:grid-cols-4 lg:grid-cols-5">
-        {topItems.map((rec, index) => (
-          <CineCard
-            key={rec.movie?.movie_id || rec.movie_id}
-            rec={rec}
-            index={index}
-            isFirst={index === 0}
-            isLast={index === topItems.length - 1}
-            onCardClick={handleCardClick}
-          />
-        ))}
-      </div>
+      {/* Horizontal Slider Area */}
+      <div className="relative">
+        {/* Left Scroll Button */}
+        {canScrollLeft && (
+          <button
+            onClick={() => handleScroll("left")}
+            aria-label="Scroll Left"
+            className="absolute -left-4 top-1/2 z-30 flex h-12 w-10 -translate-y-1/2 items-center justify-center rounded-r bg-black/70 text-2xl font-bold text-white opacity-0 backdrop-blur-sm transition-all duration-200 hover:bg-black/90 hover:text-[#e50914] group-hover:opacity-100"
+          >
+            ‹
+          </button>
+        )}
 
-      {/* Bottom 5: horizontal scroll strip, revealed when user clicks "+N More" */}
-      {showMore && moreItems.length > 0 && (
+        {/* Horizontal Card Track */}
         <div
           ref={scrollRef}
-          className="no-scrollbar flex snap-x snap-mandatory gap-3.5 overflow-x-auto scroll-smooth pb-3"
+          onScroll={checkScroll}
+          className="no-scrollbar flex gap-4 overflow-x-auto scroll-smooth py-3 px-1"
         >
-          {moreItems.map((rec, index) => (
+          {items.map((rec, index) => (
             <div
               key={rec.movie?.movie_id || rec.movie_id}
-              className="w-[calc(20%-0.7rem)] min-w-[180px] flex-none snap-start"
+              className="w-56 flex-shrink-0 sm:w-64 md:w-72"
             >
               <CineCard
                 rec={rec}
-                index={topItems.length + index}
+                index={index}
                 isFirst={index === 0}
-                isLast={index === moreItems.length - 1}
+                isLast={index === items.length - 1}
                 onCardClick={handleCardClick}
               />
             </div>
           ))}
         </div>
-      )}
+
+        {/* Right Scroll Button */}
+        {canScrollRight && (
+          <button
+            onClick={() => handleScroll("right")}
+            aria-label="Scroll Right"
+            className="absolute -right-4 top-1/2 z-30 flex h-12 w-10 -translate-y-1/2 items-center justify-center rounded-l bg-black/70 text-2xl font-bold text-white opacity-0 backdrop-blur-sm transition-all duration-200 hover:bg-black/90 hover:text-[#e50914] group-hover:opacity-100"
+          >
+            ›
+          </button>
+        )}
+      </div>
     </div>
   );
 };
