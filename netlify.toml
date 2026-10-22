@@ -1,11 +1,11 @@
 [build]
-  command = "cd frontend && npm install && npm run build"
-  publish = "frontend/dist"
-  functions = "backend"
+  base = "frontend"
+  command = "npm run build"
+  publish = "dist"
 
 [build.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION = "9"
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
   VITE_BACKEND_URL = "https://recommendationsystem-s0gt.onrender.com/api"
   VITE_FIREBASE_API_KEY = "AIzaSyAO9WMzJ5_xhLwwG57GqcXQggQYY1iyq-o"
   VITE_FIREBASE_AUTH_DOMAIN = "netflix-clone-d8c00.firebaseapp.com"
