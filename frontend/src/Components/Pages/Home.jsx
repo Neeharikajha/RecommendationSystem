@@ -182,12 +182,29 @@ const Home = ({ showCustomBuilder, setShowCustomBuilder }) => {
 
       {/* Backend Hybrid Engine Recommendation Rows */}
       {loadingBackend ? (
-        <div className="px-6 py-12 text-center text-gray-400 md:px-12">
-          <span>Loading recommendations...</span>
+        <div className="flex flex-col items-center justify-center space-y-3 px-6 py-16 text-center text-gray-400 md:px-12">
+          <div className="h-7 w-7 animate-spin rounded-full border-2 border-red-600 border-t-transparent"></div>
+          <span className="text-sm">Loading recommendations...</span>
+          <span className="text-xs text-gray-500">Waking up recommendation engine if inactive. This may take a few moments.</span>
         </div>
       ) : backendError ? (
-        <div className="mx-6 my-4 rounded-xl border border-red-800/40 bg-red-950/30 p-4 text-xs text-red-300 md:mx-12">
-          Error loading recommendations: {backendError}
+        <div className="mx-6 my-6 flex flex-col items-center justify-between gap-3 rounded-xl border border-red-800/40 bg-red-950/30 p-4 text-xs text-red-300 md:mx-12 md:flex-row">
+          <div>
+            <p className="font-medium text-red-200">Unable to load recommendations ({backendError})</p>
+            <p className="mt-1 text-gray-400">The cloud service might still be spinning up from idle.</p>
+          </div>
+          <button
+            onClick={() => {
+              if (selectedProfile === "custom" || selectedProfile === "new") {
+                fetchCustomHome(sessionLikes);
+              } else {
+                fetchUserData(activeUserId);
+              }
+            }}
+            className="rounded bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-700 active:scale-95 whitespace-nowrap"
+          >
+            Retry Now
+          </button>
         </div>
       ) : (
         <div className="space-y-2">
